@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: hsl(0 6% 19%);
+  --color-ink-soft: hsl(0 5% 26%);
+  --color-paper: hsl(0 0% 98%);
+  --color-sand: hsl(45 8% 80%);
+  --color-sand-deep: hsl(42 10% 68%);
+  --color-stone: hsl(0 3% 49%);
+  --color-mist: hsl(0 0% 91%);
+  --color-mist-deep: hsl(0 0% 85%);
+  --color-blush: hsl(355 40% 82%);
+  --color-moss: hsl(95 14% 62%);
+  --color-sky: hsl(205 30% 72%);
+  --color-clay: hsl(18 45% 70%);
+  --color-plum: hsl(300 12% 62%);
+  --color-honey: hsl(38 60% 72%);
+  --color-slate: hsl(210 10% 60%);
+}
+
+@layer base {
+  html { font-family: var(--font-sans); }
+  body { @apply bg-paper text-ink antialiased; }
+  h1, h2, h3 { @apply font-bold tracking-tight lowercase; }
+  input, textarea, select { @apply outline-none; }
+  ::selection { @apply bg-sand text-ink; }
+}
+
+@utility container-x { @apply mx-auto w-full max-w-6xl px-6 md:px-10; }
+@utility label-caps { @apply text-[11px] font-semibold uppercase tracking-[0.18em]; }
+@utility pill { @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-40; }
+@utility pill-light { @apply pill bg-mist text-ink hover:bg-sand; }
+@utility pill-dark { @apply pill bg-ink text-paper hover:bg-ink-soft; }
+@utility pill-ghost { @apply pill border border-ink/20 text-ink hover:border-ink; }
+@utility pill-paper { @apply pill bg-paper text-ink hover:bg-sand; }
+@utility chip { @apply inline-flex items-center rounded-full border px-3 py-1 text-xs lowercase transition-colors; }
+@utility field { @apply w-full rounded-xl border border-mist-deep bg-white px-4 py-3 text-sm text-ink placeholder:text-stone focus:border-ink; }
+@utility card { @apply rounded-2xl bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(48,44,44,0.18)]; }
+@utility masonry {
+  column-gap: 1.25rem;
+  & > * { break-inside: avoid; margin-bottom: 1.25rem; }
+}
+
+@keyframes rise { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: none; } }
+.rise { animation: rise .35s ease-out both; }
