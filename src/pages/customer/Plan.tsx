@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import type { CategorySlug, Survey, VibeTag } from '../../types'
 import { Nav } from '../../components/Nav'
+import { dashboardPath } from '../../components/RequireRole'
 import { Chip, Stepper } from '../../components/ui'
 import { CATEGORIES } from '../../data/categories'
 import { EVENT_TYPES, GUEST_PRESETS, VIBE_TAGS } from '../../data/tags'
@@ -12,7 +13,7 @@ const TOTAL = 5
 export function Plan() {
   const nav = useNavigate()
   const [params] = useSearchParams()
-  const { myEvents } = useApp()
+  const { myEvents, user } = useApp()
   const ctxEvent = myEvents.find((e) => e.id === params.get('event'))
   const [step, setStep] = useState(1)
   const [survey, setSurvey] = useState<Survey>({
@@ -53,10 +54,15 @@ export function Plan() {
   ]
 
   return (
-    <div className="flex min-h-screen flex-col bg-ink text-paper">
+    <div className="keep-dark flex min-h-screen flex-col bg-ink text-paper">
       <Nav />
       <div className="container-x flex flex-1 flex-col py-10">
-        <Stepper step={step} total={TOTAL} />
+        <div className="flex items-center gap-6">
+          <div className="flex-1"><Stepper step={step} total={TOTAL} /></div>
+          {/* changing your mind goes back to where planning started */}
+          <Link to={ctxEvent ? `/events/${ctxEvent.id}` : user ? dashboardPath(user) : '/'} className="label-caps text-paper/60 hover:text-paper">exit ×</Link>
+        </div>
+        {!user && step === 1 && <p className="mt-4 text-xs text-paper/60">explore freely. a free account saves your plan when you're ready.</p>}
         <div className="rise my-auto py-12" key={step}>
           <p className="label-caps text-paper/50">{ctxEvent ? `adding to ${ctxEvent.name}` : "let's plan together"}</p>
           <h1 className="mt-3 text-5xl md:text-6xl">{questions[step - 1]}</h1>

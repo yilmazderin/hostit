@@ -1,4 +1,4 @@
-import type { EventType, VibeTag } from '../types'
+import type { EventType, PlannerType, VibeTag } from '../types'
 
 export const EVENT_TYPES: { value: EventType; blurb: string; emoji: string }[] = [
   { value: 'wedding', blurb: 'the big day, start to finish', emoji: '💍' },
@@ -28,3 +28,10 @@ export const VIBE_TAGS: VibeTag[] = [
 ]
 
 export const GUEST_PRESETS = [10, 25, 50, 100, 150, 250]
+
+// "what best describes you?" at sign-up; the same experience for all three in V1
+export const PLANNER_TYPES: { value: PlannerType; label: string }[] = [
+  { value: 'self', label: 'planning an event for myself' },
+  { value: 'business', label: 'planning events for a business' },
+  { value: 'professional', label: 'i plan events professionally' },
+]

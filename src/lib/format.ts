@@ -5,6 +5,12 @@ export function formatDate(iso: string) {
   return date.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase()
 }
 
+export function formatTime(hhmm: string) {
+  const [h, m] = hhmm.split(':').map(Number)
+  if (Number.isNaN(h) || Number.isNaN(m)) return ''
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`
+}
+
 export function plural(n: number, word: string) {
   if (n === 1) return `${n} ${word}`
   return `${n} ${word}${/(s|x|z|ch|sh)$/.test(word) ? 'es' : 's'}`

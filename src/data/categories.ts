@@ -55,6 +55,17 @@ export const CATEGORIES: Category[] = [
 export const categoryBySlug = (slug: CategorySlug) =>
   CATEGORIES.find((c) => c.slug === slug)!
 
+// What vendors in each category offer: the filters on a category page and the tags on a profile.
+export const CATEGORY_TAGS: Record<CategorySlug, string[]> = {
+  'food-drink': ['mocktails', 'cocktails', 'mobile bar', 'coffee', 'catering', 'desserts', 'grazing'],
+  'styling-decor': ['florals', 'balloons', 'lighting', 'installations', 'tablescapes', 'rentals', 'signage'],
+  'photo-moments': ['wedding', 'brand', 'lifestyle', 'event', 'film', 'photo booth', 'live painting'],
+  entertainment: ['dj', 'live music', 'mc & hosting', 'ceremony', 'cocktail hour', 'dinner', 'dance floor', 'games'],
+  'workshops-experiences': ['art', 'crafts', 'jewellery', 'pottery', 'paint & sip', 'pop-up', 'team building'],
+  wellness: ['yoga', 'pilates', 'breathwork', 'movement', 'sauna', 'retreats'],
+  'venues-spaces': ['indoor', 'outdoor', 'garden', 'patio', 'loft', 'studio', 'restaurant'],
+}
+
 export const CATEGORY_BG: Record<string, string> = {
   blush: 'bg-blush',
   moss: 'bg-moss',

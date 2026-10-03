@@ -13,6 +13,7 @@ interface Seed {
   bestFor: EventType[]
   vibes: VibeTag[]
   guests: [number, number]
+  tags: string[] // from CATEGORY_TAGS for the vendor's category
   instagram?: string
   website?: string
   featured?: boolean
@@ -28,7 +29,7 @@ const seeds: Seed[] = [
     services: ['wedding cakes', 'dessert tables', 'custom sugar cookies', 'branded cookies'],
     bestFor: ['wedding', 'shower', 'birthday', 'brand event'],
     vibes: ['elevated', 'minimal', 'garden', 'intimate'],
-    guests: [10, 250], instagram: '@thepantrybakeshop', featured: true,
+    guests: [10, 250], tags: ['desserts', 'catering'], instagram: '@thepantrybakeshop', featured: true,
   },
   {
     slug: 'a-couple-cocktails', name: 'A Couple Cocktails', cat: 'food-drink',
@@ -37,7 +38,7 @@ const seeds: Seed[] = [
     services: ['mobile bar', 'custom cocktail menus', 'bartending staff', 'mocktail programs'],
     bestFor: ['wedding', 'shower', 'private gathering', 'brand event', 'corporate'],
     vibes: ['elevated', 'glam', 'moody', 'festive', 'modern'],
-    guests: [20, 300], instagram: '@acouplecocktailswindsor', website: 'acouplecocktails.ca', featured: true,
+    guests: [20, 300], tags: ['cocktails', 'mocktails', 'mobile bar'], instagram: '@acouplecocktailswindsor', website: 'acouplecocktails.ca', featured: true,
     unavailable: ['2026-10-10', '2026-10-17'],
   },
   {
@@ -47,7 +48,7 @@ const seeds: Seed[] = [
     services: ['pudding bar', 'individual cups', 'late-night dessert'],
     bestFor: ['birthday', 'private gathering', 'brand event', 'shower'],
     vibes: ['playful', 'retro', 'festive', 'cozy'],
-    guests: [15, 200], instagram: '@sugardaddypuddin',
+    guests: [15, 200], tags: ['desserts', 'catering'], instagram: '@sugardaddypuddin',
   },
   {
     slug: 'dree-eats', name: 'Dree Eats', cat: 'food-drink',
@@ -56,7 +57,7 @@ const seeds: Seed[] = [
     services: ['grazing tables', 'charcuterie boxes', 'brunch boards'],
     bestFor: ['shower', 'private gathering', 'corporate', 'wedding'],
     vibes: ['boho', 'garden', 'rustic', 'intimate', 'cozy'],
-    guests: [8, 150], instagram: '@dree.eats',
+    guests: [8, 150], tags: ['grazing', 'catering'], instagram: '@dree.eats',
   },
   {
     slug: 'mocktail-muse', name: 'Mocktail Muse', cat: 'food-drink',
@@ -65,7 +66,7 @@ const seeds: Seed[] = [
     services: ['mocktail bar', 'welcome drinks', 'botanical spritzes'],
     bestFor: ['shower', 'corporate', 'workshop', 'birthday'],
     vibes: ['garden', 'minimal', 'coastal', 'elevated'],
-    guests: [10, 120], instagram: '@mocktailmuse',
+    guests: [10, 120], tags: ['mocktails', 'mobile bar'], instagram: '@mocktailmuse',
   },
   {
     slug: 'soluna-sip', name: 'Soluna Sip', cat: 'food-drink',
@@ -74,7 +75,7 @@ const seeds: Seed[] = [
     services: ['coffee cart', 'matcha bar', 'brunch service'],
     bestFor: ['brand event', 'corporate', 'shower', 'workshop'],
     vibes: ['modern', 'minimal', 'coastal', 'playful'],
-    guests: [15, 200], instagram: '@solunasip',
+    guests: [15, 200], tags: ['coffee', 'mobile bar'], instagram: '@solunasip',
   },
   // styling & decor
   {
@@ -84,7 +85,7 @@ const seeds: Seed[] = [
     services: ['bouquets', 'centrepieces', 'floral installations', 'bud vase rentals'],
     bestFor: ['wedding', 'shower', 'private gathering'],
     vibes: ['garden', 'boho', 'rustic', 'intimate'],
-    guests: [10, 300], instagram: '@lindsaysflorals', featured: true,
+    guests: [10, 300], tags: ['florals', 'installations', 'tablescapes', 'rentals'], instagram: '@lindsaysflorals', featured: true,
   },
   {
     slug: 'the-lit-marquee', name: 'The Lit Marquee', cat: 'styling-decor',
@@ -93,7 +94,7 @@ const seeds: Seed[] = [
     services: ['marquee letters', 'custom neon', 'string light installs'],
     bestFor: ['birthday', 'wedding', 'brand event', 'corporate'],
     vibes: ['glam', 'festive', 'retro', 'modern', 'moody'],
-    guests: [20, 500], instagram: '@thelitmarquee',
+    guests: [20, 500], tags: ['signage', 'lighting', 'rentals'], instagram: '@thelitmarquee',
   },
   {
     slug: 'the-adorned-garden', name: 'The Adorned Garden', cat: 'styling-decor',
@@ -102,7 +103,7 @@ const seeds: Seed[] = [
     services: ['dried arrangements', 'ceremony arches', 'backdrops', 'styling consults'],
     bestFor: ['wedding', 'shower', 'brand event'],
     vibes: ['boho', 'minimal', 'rustic', 'cozy'],
-    guests: [10, 200], instagram: '@theadornedgarden',
+    guests: [10, 200], tags: ['florals', 'installations'], instagram: '@theadornedgarden',
   },
   {
     slug: 'peris-touch', name: 'Peris Touch', cat: 'styling-decor',
@@ -111,7 +112,7 @@ const seeds: Seed[] = [
     services: ['balloon garlands', 'installations', 'welcome signs'],
     bestFor: ['birthday', 'shower', 'brand event', 'corporate'],
     vibes: ['playful', 'festive', 'glam', 'modern'],
-    guests: [10, 400], instagram: '@peris.touch',
+    guests: [10, 400], tags: ['balloons', 'installations', 'signage'], instagram: '@peris.touch',
   },
   {
     slug: 'where-love-abounds', name: 'Where Love Abounds', cat: 'styling-decor',
@@ -120,7 +121,7 @@ const seeds: Seed[] = [
     services: ['event styling', 'tablescapes', 'day-of coordination', 'rentals'],
     bestFor: ['wedding', 'corporate', 'brand event', 'private gathering'],
     vibes: ['elevated', 'glam', 'modern', 'minimal', 'moody'],
-    guests: [30, 400], instagram: '@whereloveabounds', featured: true,
+    guests: [30, 400], tags: ['tablescapes', 'rentals', 'signage'], instagram: '@whereloveabounds', featured: true,
   },
   // photo & moments
   {
@@ -130,7 +131,7 @@ const seeds: Seed[] = [
     services: ['wedding photography', 'event coverage', 'editorial sessions'],
     bestFor: ['wedding', 'private gathering', 'brand event', 'shower'],
     vibes: ['moody', 'elevated', 'intimate', 'minimal'],
-    guests: [2, 300], instagram: '@innakovaleva.photo', featured: true,
+    guests: [2, 300], tags: ['wedding', 'event', 'brand', 'lifestyle'], instagram: '@innakovaleva.photo', featured: true,
     unavailable: ['2026-10-10'],
   },
   {
@@ -140,7 +141,7 @@ const seeds: Seed[] = [
     services: ['live event painting', 'guest portraits', 'custom commissions'],
     bestFor: ['wedding', 'corporate', 'birthday'],
     vibes: ['elevated', 'garden', 'glam', 'intimate'],
-    guests: [20, 300], instagram: '@youreventcanvas',
+    guests: [20, 300], tags: ['live painting', 'wedding', 'event'], instagram: '@youreventcanvas',
   },
   {
     slug: 'lamassu-events', name: 'Lamassu Events', cat: 'photo-moments',
@@ -149,7 +150,7 @@ const seeds: Seed[] = [
     services: ['content creation', 'same-day reels', 'photo + video packages'],
     bestFor: ['brand event', 'corporate', 'birthday', 'wedding'],
     vibes: ['modern', 'festive', 'glam', 'playful'],
-    guests: [20, 500], instagram: '@lamassuevents',
+    guests: [20, 500], tags: ['film', 'brand', 'event', 'wedding'], instagram: '@lamassuevents',
   },
   {
     slug: 'still-frame-booth', name: 'Still Frame Booth', cat: 'photo-moments',
@@ -158,7 +159,7 @@ const seeds: Seed[] = [
     services: ['glam booth', 'instant prints', 'digital gallery'],
     bestFor: ['wedding', 'birthday', 'corporate', 'brand event'],
     vibes: ['glam', 'retro', 'modern', 'festive'],
-    guests: [40, 500], instagram: '@stillframebooth',
+    guests: [40, 500], tags: ['photo booth', 'event', 'wedding'], instagram: '@stillframebooth',
   },
   // entertainment
   {
@@ -168,7 +169,7 @@ const seeds: Seed[] = [
     services: ['dj sets', 'mc services', 'sound + lighting'],
     bestFor: ['wedding', 'birthday', 'brand event', 'corporate'],
     vibes: ['festive', 'glam', 'modern', 'playful'],
-    guests: [40, 500], instagram: '@djsoleil', featured: true,
+    guests: [40, 500], tags: ['dj', 'mc & hosting', 'dance floor'], instagram: '@djsoleil', featured: true,
   },
   {
     slug: 'the-riverside-trio', name: 'The Riverside Trio', cat: 'entertainment',
@@ -177,7 +178,7 @@ const seeds: Seed[] = [
     services: ['ceremony music', 'cocktail hour sets', 'dinner sets'],
     bestFor: ['wedding', 'private gathering', 'corporate'],
     vibes: ['elevated', 'intimate', 'garden', 'minimal'],
-    guests: [10, 250], instagram: '@theriversidetrio',
+    guests: [10, 250], tags: ['live music', 'ceremony', 'cocktail hour', 'dinner'], instagram: '@theriversidetrio',
   },
   {
     slug: 'vinyl-hour', name: 'Vinyl Hour', cat: 'entertainment',
@@ -186,7 +187,7 @@ const seeds: Seed[] = [
     services: ['vinyl dj sets', 'listening lounge setup'],
     bestFor: ['private gathering', 'brand event', 'birthday'],
     vibes: ['retro', 'cozy', 'moody', 'coastal'],
-    guests: [10, 150], instagram: '@vinylhourwindsor',
+    guests: [10, 150], tags: ['dj', 'dinner', 'cocktail hour'], instagram: '@vinylhourwindsor',
   },
   {
     slug: 'the-gilded-mic', name: 'The Gilded Mic', cat: 'entertainment',
@@ -195,7 +196,7 @@ const seeds: Seed[] = [
     services: ['live jazz duo', 'solo vocalist', 'piano bar'],
     bestFor: ['corporate', 'wedding', 'private gathering'],
     vibes: ['moody', 'elevated', 'glam', 'intimate'],
-    guests: [10, 200], instagram: '@thegildedmic',
+    guests: [10, 200], tags: ['live music', 'cocktail hour', 'dinner'], instagram: '@thegildedmic',
   },
   // workshops & experiences
   {
@@ -205,7 +206,7 @@ const seeds: Seed[] = [
     services: ['paint nights', 'candle pouring', 'private group sessions'],
     bestFor: ['workshop', 'birthday', 'corporate', 'shower'],
     vibes: ['playful', 'cozy', 'festive', 'boho'],
-    guests: [6, 40], instagram: '@sipnswirl',
+    guests: [6, 40], tags: ['paint & sip', 'art', 'crafts'], instagram: '@sipnswirl',
   },
   {
     slug: 'aloha-jewels', name: 'Aloha Jewels', cat: 'workshops-experiences',
@@ -214,7 +215,7 @@ const seeds: Seed[] = [
     services: ['permanent jewelry bar', 'bracelet + anklet welding'],
     bestFor: ['shower', 'brand event', 'birthday', 'workshop'],
     vibes: ['coastal', 'playful', 'glam', 'modern'],
-    guests: [8, 120], instagram: '@alohajewels', featured: true,
+    guests: [8, 120], tags: ['jewellery', 'pop-up'], instagram: '@alohajewels', featured: true,
   },
   {
     slug: 'rings-n-things', name: "Rings N' Things", cat: 'workshops-experiences',
@@ -223,7 +224,7 @@ const seeds: Seed[] = [
     services: ['ring-making workshops', 'private studio sessions'],
     bestFor: ['workshop', 'shower', 'birthday', 'corporate'],
     vibes: ['rustic', 'intimate', 'minimal', 'boho'],
-    guests: [4, 16], instagram: '@ringsnthings.studio',
+    guests: [4, 16], tags: ['jewellery', 'crafts'], instagram: '@ringsnthings.studio',
   },
   {
     slug: 'clay-and-company', name: 'Clay & Company', cat: 'workshops-experiences',
@@ -232,7 +233,7 @@ const seeds: Seed[] = [
     services: ['hand-building workshops', 'corporate team sessions'],
     bestFor: ['workshop', 'corporate', 'birthday'],
     vibes: ['rustic', 'minimal', 'cozy', 'boho'],
-    guests: [6, 30], instagram: '@clayandcompany',
+    guests: [6, 30], tags: ['pottery', 'crafts', 'team building'], instagram: '@clayandcompany',
   },
   // wellness
   {
@@ -242,7 +243,7 @@ const seeds: Seed[] = [
     services: ['private yoga', 'group flows', 'retreat programming'],
     bestFor: ['shower', 'corporate', 'workshop', 'private gathering'],
     vibes: ['garden', 'minimal', 'coastal', 'intimate'],
-    guests: [4, 40], instagram: '@radianceyoga',
+    guests: [4, 40], tags: ['yoga', 'movement', 'retreats'], instagram: '@radianceyoga',
   },
   {
     slug: 'flow-fire', name: 'flow + fire', cat: 'wellness',
@@ -251,7 +252,7 @@ const seeds: Seed[] = [
     services: ['breathwork', 'mobile sauna', 'cold plunge'],
     bestFor: ['private gathering', 'corporate', 'workshop'],
     vibes: ['rustic', 'moody', 'coastal', 'minimal'],
-    guests: [4, 24], instagram: '@flowandfire',
+    guests: [4, 24], tags: ['breathwork', 'sauna', 'retreats'], instagram: '@flowandfire',
   },
   {
     slug: 'forma', name: 'Forma', cat: 'wellness',
@@ -260,7 +261,7 @@ const seeds: Seed[] = [
     services: ['mat pilates', 'mobility sessions', 'wellness breaks'],
     bestFor: ['corporate', 'shower', 'workshop'],
     vibes: ['modern', 'minimal', 'elevated'],
-    guests: [4, 30], instagram: '@forma.movement',
+    guests: [4, 30], tags: ['pilates', 'movement'], instagram: '@forma.movement',
   },
   // venues
   {
@@ -270,7 +271,7 @@ const seeds: Seed[] = [
     services: ['full venue rental', 'tables + chairs', 'in-house sound'],
     bestFor: ['wedding', 'brand event', 'corporate', 'birthday'],
     vibes: ['modern', 'minimal', 'moody', 'elevated'],
-    guests: [40, 180], instagram: '@theloftonouellette', featured: true,
+    guests: [40, 180], tags: ['indoor', 'loft'], instagram: '@theloftonouellette', featured: true,
   },
   {
     slug: 'harrow-greenhouse', name: 'Harrow Greenhouse', cat: 'venues-spaces',
@@ -279,7 +280,7 @@ const seeds: Seed[] = [
     services: ['greenhouse rental', 'harvest tables', 'string lighting'],
     bestFor: ['wedding', 'shower', 'private gathering'],
     vibes: ['garden', 'boho', 'rustic', 'intimate', 'cozy'],
-    guests: [20, 120], instagram: '@harrowgreenhouse',
+    guests: [20, 120], tags: ['indoor', 'garden'], instagram: '@harrowgreenhouse',
   },
   {
     slug: 'the-back-patio', name: 'The Back Patio', cat: 'venues-spaces',
@@ -288,7 +289,7 @@ const seeds: Seed[] = [
     services: ['patio rental', 'fire table', 'heaters'],
     bestFor: ['private gathering', 'birthday', 'brand event'],
     vibes: ['cozy', 'garden', 'intimate', 'retro'],
-    guests: [10, 45], instagram: '@thebackpatioyqg',
+    guests: [10, 45], tags: ['outdoor', 'patio', 'garden'], instagram: '@thebackpatioyqg',
   },
 ]
 
@@ -307,6 +308,7 @@ export const VENDORS: Vendor[] = seeds.map((s) => ({
   unavailableDates: s.unavailable ?? [],
   instagram: s.instagram,
   website: s.website,
+  tags: s.tags,
   images: img(s.slug),
   featured: s.featured,
 }))
