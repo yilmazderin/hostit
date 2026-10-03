@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Footer, Nav } from '../../components/Nav'
+import { Link } from 'react-router-dom'
+import { listingOf } from '../../lib/application'
 import { toISODate } from '../../lib/format'
 import { useApp } from '../../store/AppContext'
 
@@ -11,6 +13,18 @@ export function Availability() {
     return new Date(d.getFullYear(), d.getMonth(), 1)
   })
   if (!vendor) return null
+  if (listingOf(vendor) !== 'approved')
+    return (
+      <>
+        <Nav />
+        <section className="container-x py-24 text-center">
+          <h1 className="text-4xl">availability unlocks once you're approved.</h1>
+          <p className="mx-auto mt-3 max-w-md text-sm text-stone">planners can only book vendors in the network, so your calendar opens up when host it approves your application.</p>
+          <Link to="/vendor" className="pill-dark mt-8">back to your application</Link>
+        </section>
+        <Footer />
+      </>
+    )
 
   const booked = new Set(
     inquiries
@@ -35,7 +49,7 @@ export function Availability() {
   return (
     <>
       <Nav />
-      <section className="bg-ink text-paper">
+      <section className="keep-dark bg-ink text-paper">
         <div className="container-x py-12">
           <p className="label-caps text-paper/50">{vendor.name}</p>
           <h1 className="mt-1 text-4xl md:text-5xl">availability</h1>

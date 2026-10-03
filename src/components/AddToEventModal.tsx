@@ -22,10 +22,11 @@ export function AddToEventModal({
   const [mode, setMode] = useState<'existing' | 'new'>(myEvents.length ? 'existing' : 'new')
   const [eventId, setEventId] = useState(defaultEventId ?? myEvents[0]?.id ?? '')
   const [message, setMessage] = useState('')
+  const [contact, setContact] = useState(true)
   const [draft, setDraft] = useState({ name: '', type: 'private gathering' as EventType, guests: 30, date: '' })
 
   const finish = (id: string) => {
-    addVendorsToEvent(id, [vendor.id], message || undefined)
+    addVendorsToEvent(id, [vendor.id], message || undefined, contact)
     onClose()
     nav(`/events/${id}`)
   }
@@ -51,7 +52,7 @@ export function AddToEventModal({
                 disabled={already}
                 onClick={() => setEventId(e.id)}
                 className={`flex w-full items-center justify-between rounded-xl border p-4 text-left transition-colors ${
-                  eventId === e.id ? 'border-ink bg-white' : 'border-mist-deep hover:border-ink'
+                  eventId === e.id ? 'border-ink bg-surface' : 'border-mist-deep hover:border-ink'
                 } disabled:opacity-50`}
               >
                 <div>
@@ -72,7 +73,7 @@ export function AddToEventModal({
           </Field>
           <div className="grid grid-cols-2 gap-4">
             <Field label="type">
-              <select className="field" value={draft.type} onChange={(e) => setDraft({ ...draft, type: e.target.value as EventType })}>
+              <select className="field-select" value={draft.type} onChange={(e) => setDraft({ ...draft, type: e.target.value as EventType })}>
                 {EVENT_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>{t.value}</option>
                 ))}
@@ -88,9 +89,14 @@ export function AddToEventModal({
         </div>
       )}
 
-      <Field label="a note to the vendor (optional)">
-        <textarea className="field mt-0 min-h-20" value={message} onChange={(e) => setMessage(e.target.value)} placeholder={`hi ${vendor.name.toLowerCase()}, we'd love to...`} />
-      </Field>
+      <ContactToggle contact={contact} onChange={setContact} who={vendor.name} />
+      {contact && (
+        <div className="mt-4">
+          <Field label="a note to the vendor (optional)">
+            <textarea className="field mt-0 min-h-20" value={message} onChange={(e) => setMessage(e.target.value)} placeholder={`hi ${vendor.name.toLowerCase()}, we'd love to...`} />
+          </Field>
+        </div>
+      )}
 
       <div className="mt-6 flex justify-end gap-3">
         <button className="pill-ghost" onClick={onClose}>cancel</button>
@@ -110,5 +116,22 @@ export function AddToEventModal({
         )}
       </div>
     </Modal>
+  )
+}
+
+// Pinning and contacting are separate: unticked, vendors land on the board as "not contacted".
+export function ContactToggle({ contact, onChange, who }: { contact: boolean; onChange: (v: boolean) => void; who: string }) {
+  return (
+    <label className="mt-5 flex cursor-pointer items-start gap-3 text-sm">
+      <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-ink" checked={contact} onChange={(e) => onChange(e.target.checked)} />
+      <span>
+        send {who} an inquiry now
+        <span className="mt-0.5 block text-xs text-stone">
+          {contact
+            ? 'they get your event details and can confirm or decline.'
+            : "saved as not contacted. send the inquiry from the board when you're ready."}
+        </span>
+      </span>
+    </label>
   )
 }

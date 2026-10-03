@@ -1,4 +1,20 @@
-import type { CategorySlug, MatchResult, Survey, Vendor } from '../types'
+import type { CategorySlug, EventBoard, MatchResult, Survey, Vendor } from '../types'
+import { CATEGORIES } from '../data/categories'
+
+// The survey an event's own details amount to; `category` narrows it to one need.
+export function eventSurvey(event: EventBoard, category?: CategorySlug): Survey {
+  return {
+    type: event.type,
+    guests: event.guests,
+    date: event.date,
+    vibes: event.vibes,
+    needs: category ? [category] : event.needs.length ? event.needs : CATEGORIES.map((c) => c.slug),
+  }
+}
+
+// Identity of everything that changes the matches, so the board can tell "view" from "update".
+export const surveyKey = (s: Survey) =>
+  JSON.stringify([s.type, s.guests, s.date, [...s.vibes].sort(), [...s.needs].sort()])
 
 export function matchVendors(survey: Survey, vendors: Vendor[]): MatchResult[] {
   return vendors
@@ -19,10 +35,6 @@ export function matchVendors(survey: Survey, vendors: Vendor[]): MatchResult[] {
       if (survey.guests >= vendor.guestRange.min && survey.guests <= vendor.guestRange.max) {
         score += 1
         reasons.push(`fits ${survey.guests} guests`)
-      }
-      if (vendor.featured) {
-        score += 1
-        reasons.push('host it pick')
       }
       return { vendor, score, reasons }
     })

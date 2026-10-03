@@ -3,12 +3,17 @@ import { Footer, Nav } from '../../components/Nav'
 import { Chip, StatusBadge } from '../../components/ui'
 import { categoryBySlug } from '../../data/categories'
 import { formatDate, plural } from '../../lib/format'
+import { listingOf } from '../../lib/application'
 import { useApp } from '../../store/AppContext'
+import { ApplicationDashboard } from './Application'
 
 export function Dashboard() {
-  const { user, vendorById, inquiries, events, users, setInquiryStatus } = useApp()
+  const { user, vendorById, inquiries, events, users, setInquiryStatus, notifications, markNotificationsRead } = useApp()
   const vendor = user?.vendorId ? vendorById(user.vendorId) : undefined
   if (!vendor) return null
+  // until host it approves the business, the dashboard is the application
+  if (listingOf(vendor) !== 'approved') return <ApplicationDashboard vendor={vendor} />
+  const unread = notifications.filter((n) => !n.read)
   const cat = categoryBySlug(vendor.categorySlug)
   const mine = inquiries
     .filter((i) => i.vendorId === vendor.id)
@@ -22,7 +27,7 @@ export function Dashboard() {
   return (
     <>
       <Nav />
-      <section className="bg-ink text-paper">
+      <section className="keep-dark bg-ink text-paper">
         <div className="container-x flex flex-wrap items-end justify-between gap-6 py-14">
           <div className="flex items-center gap-5">
             <img src={vendor.images[0]} alt="" className="h-20 w-20 rounded-2xl object-cover" />
@@ -39,7 +44,24 @@ export function Dashboard() {
         </div>
       </section>
 
-      <section className="container-x -mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+      {unread.length > 0 && (
+        <section className="container-x pt-8">
+          {unread.map((n) => (
+            <div key={n.id} className="card mb-3 flex flex-wrap items-center justify-between gap-4 border-l-4 border-moss p-6">
+              <div>
+                <div className="font-semibold">{n.title}</div>
+                <p className="mt-1 text-sm text-stone">{n.body}</p>
+              </div>
+              <div className="flex gap-3">
+                <Link to={`/vendors/${vendor.slug}`} className="pill-ghost">see your listing</Link>
+                <button className="pill-dark" onClick={markNotificationsRead}>got it</button>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+
+      <section className={`container-x grid grid-cols-2 gap-4 md:grid-cols-4 ${unread.length ? 'pt-6' : '-mt-6'}`}>
         {[
           ['profile views', views, 'last 30 days'],
           ['pending inquiries', pending.length, 'waiting on you'],

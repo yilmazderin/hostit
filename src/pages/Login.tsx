@@ -1,28 +1,37 @@
 import { useState, type FormEvent } from 'react'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { Nav } from '../components/Nav'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { dashboardPath } from '../components/RequireRole'
 import { DEMO_LOGINS } from '../data/users'
 import { useApp } from '../store/AppContext'
 import { Field } from '../components/ui'
+import { FormShell } from './account/SignUp'
+
+const CHIP: Record<string, string> = {
+  planner: 'bg-moss/60',
+  vendor: 'bg-sand',
+  applicant: 'bg-honey/60',
+  admin: 'bg-sky/60',
+}
 
 export function Login() {
-  const { login } = useApp()
+  const { user, login } = useApp()
   const nav = useNavigate()
-  const loc = useLocation() as { state?: { from?: string } }
   const [params] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const next = params.get('next')
+
+  if (user) return <Navigate to={dashboardPath(user)} replace />
 
   const go = (e: string, p: string) => {
-    const user = login(e, p)
-    if (!user) {
-      setError("that didn't match a demo account. try one of the chips below.")
+    const signedIn = login(e, p)
+    if (!signedIn) {
+      setError("that email and password don't match an account.")
       return
     }
-    const next = loc.state?.from ?? params.get('next')
-    if (user.role === 'vendor') nav('/vendor')
-    else nav(next && !next.startsWith('/vendor') ? next : '/home')
+    // a planner returns to where they were headed; other accounts start at their own dashboard
+    nav(signedIn.role === 'customer' && next?.startsWith('/') ? next : dashboardPath(signedIn))
   }
 
   const submit = (ev: FormEvent) => {
@@ -30,48 +39,42 @@ export function Login() {
     go(email, password)
   }
 
-  const roleHint = params.get('role')
-
   return (
-    <div className="min-h-screen bg-paper">
-      <Nav dark={false} />
-      <div className="container-x grid gap-12 py-16 md:grid-cols-[1.1fr_1fr] md:py-24">
+    <FormShell wide>
+      <div className="grid grid-cols-1 gap-12 md:grid-cols-[1fr_1.1fr]">
         <div>
           <h1 className="text-5xl md:text-6xl">welcome back.</h1>
-          <p className="mt-4 max-w-md text-sm text-stone">
-            this is a proof of concept with hardcoded accounts. sign in as a customer to plan an event, or as a vendor to
-            manage your profile and inquiries.
+          <form onSubmit={submit} className="card mt-8 space-y-5 p-8">
+            <Field label="email">
+              <input className="field h-12" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+            </Field>
+            <Field label="password">
+              <input className="field h-12" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+            </Field>
+            {error && <p className="text-sm text-danger">{error}</p>}
+            <button className="pill-dark w-full" type="submit">log in</button>
+          </form>
+          <p className="mt-6 text-sm text-stone">
+            new to host it? <Link to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`} className="text-ink underline">create an account</Link>
+            {' · '}a business? <Link to="/join" className="text-ink underline">join the network</Link>
           </p>
-          <div className="mt-10 space-y-3">
-            <span className="label-caps text-stone">demo accounts · password is “hostit”</span>
-            {DEMO_LOGINS.filter((d) => !roleHint || d.label === roleHint).map((d) => (
-              <button
-                key={d.email}
-                onClick={() => go(d.email, d.password)}
-                className="card flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-mist"
-              >
-                <div>
-                  <div className="font-semibold">{d.sub}</div>
-                  <div className="text-xs text-stone">{d.email}</div>
+        </div>
+        <div>
+          <span className="label-caps text-stone">demo accounts · password is “hostit”</span>
+          <p className="mt-2 text-xs text-stone">this is a proof of concept. tap an account to sign in as it.</p>
+          <div className="mt-4 space-y-3">
+            {DEMO_LOGINS.map((d) => (
+              <button key={d.email} onClick={() => go(d.email, d.password)} className="card flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-mist">
+                <div className="min-w-0">
+                  <div className="truncate font-semibold">{d.sub}</div>
+                  <div className="truncate text-xs text-stone">{d.email}</div>
                 </div>
-                <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${d.label === 'vendor' ? 'bg-sand' : 'bg-moss/60'}`}>
-                  {d.label}
-                </span>
+                <span className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink ${CHIP[d.label]}`}>{d.label}</span>
               </button>
             ))}
           </div>
         </div>
-        <form onSubmit={submit} className="card h-fit space-y-5 p-8">
-          <Field label="email">
-            <input className="field" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@hostit.com" autoComplete="off" />
-          </Field>
-          <Field label="password">
-            <input className="field" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="hostit" autoComplete="off" />
-          </Field>
-          {error && <p className="text-sm text-clay">{error}</p>}
-          <button className="pill-dark w-full" type="submit">sign in</button>
-        </form>
       </div>
-    </div>
+    </FormShell>
   )
 }

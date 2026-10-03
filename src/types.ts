@@ -1,4 +1,10 @@
-export type Role = 'customer' | 'vendor'
+export type Role = 'customer' | 'vendor' | 'admin'
+
+// What a planner told us at sign-up. V1 treats them the same; stored so tiers can follow.
+export type PlannerType = 'self' | 'business' | 'professional'
+
+// A vendor record's place in the curated network. Seeded vendors have no listing field: they're approved.
+export type ListingStatus = 'draft' | 'pending' | 'approved' | 'rejected'
 
 export type EventType =
   | 'wedding'
@@ -59,6 +65,10 @@ export interface Vendor {
   website?: string
   images: string[]
   featured?: boolean
+  tags?: string[] // category-specific offerings used for filtering, e.g. 'mobile bar', 'wedding'
+  listing?: ListingStatus // absent means approved
+  submittedAt?: string
+  review?: { decidedAt: string; note?: string }
 }
 
 export type VendorOverride = Partial<
@@ -74,8 +84,43 @@ export type VendorOverride = Partial<
     | 'instagram'
     | 'website'
     | 'images'
+    | 'name'
+    | 'categorySlug'
+    | 'location'
+    | 'tags'
+    | 'listing'
+    | 'submittedAt'
+    | 'review'
   >
 >
+
+// Statuses a planner sets by hand on a vendor they brought themselves (no inquiry flow for those).
+export type ManualStatus = 'not-contacted' | 'pending' | 'confirmed' | 'declined'
+
+// A vendor outside the Host It network, added by the planner. Private to one event.
+export interface CustomVendor {
+  id: string
+  name: string
+  categorySlug: CategorySlug
+  status: ManualStatus
+  contactName?: string
+  contact?: string // email or phone
+  link?: string // website or instagram
+  notes?: string
+  createdAt: string
+}
+
+export interface Task {
+  id: string
+  text: string
+  done: boolean
+}
+
+export interface StickyNote {
+  id: string
+  text: string
+  color: string // color token
+}
 
 export interface EventBoard {
   id: string
@@ -84,10 +129,16 @@ export interface EventBoard {
   type: EventType
   guests: number
   date: string // ISO yyyy-mm-dd
+  time?: string // 24h HH:mm
+  location?: string
   vibes: VibeTag[]
   needs: CategorySlug[]
+  needCounts?: Partial<Record<CategorySlug, number>> // how many vendors each need calls for; missing = 1
   vendorIds: string[]
-  notes: string
+  customVendors?: CustomVendor[]
+  tasks?: Task[]
+  stickies?: StickyNote[]
+  resultsBasis?: string // surveyKey of the event when its matched results were last viewed
   cover: string // color token
   createdAt: string
 }
@@ -111,6 +162,20 @@ export interface User {
   email: string
   password: string
   vendorId?: string
+  plannerType?: PlannerType
+  termsAcceptedAt?: string
+  createdAt?: string
+}
+
+// In-app messages, e.g. a vendor hearing back about their application.
+export interface Notification {
+  id: string
+  userId: string
+  title: string
+  body: string
+  to?: string // where "view" goes
+  createdAt: string
+  read: boolean
 }
 
 export interface Survey {

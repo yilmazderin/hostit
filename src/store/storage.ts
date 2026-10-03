@@ -1,4 +1,4 @@
-const KEY = 'hostit-poc'
+const KEY = 'hostit-poc-v3'
 
 export function load<T>(): T | null {
   try {
