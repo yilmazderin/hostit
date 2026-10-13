@@ -7,6 +7,7 @@ import { categoryBySlug } from '../../data/categories'
 import { LISTING_LABEL, day, listingOf } from '../../lib/application'
 import { vendorCanEdit } from '../../lib/access'
 import { useApp } from '../../store/AppContext'
+import { unreadCount } from '../../lib/chat'
 
 const STATUS: Record<ListingStatus, { title: string; body: string }> = {
   draft: {
@@ -40,7 +41,7 @@ const STAGE_AT: Partial<Record<ListingStatus, number>> = { draft: 0, pending: 1,
 
 // The vendor portal: where the application stands and what the vendor can do about it. Nothing else.
 export function Dashboard() {
-  const { myVendor: vendor, notifications, markNotificationsRead, changeRequests, requestChange } = useApp()
+  const { myVendor: vendor, notifications, markNotificationsRead, changeRequests, requestChange, conversations, messagesIn } = useApp()
   const [asking, setAsking] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -52,6 +53,8 @@ export function Dashboard() {
   const requests = changeRequests.filter((r) => r.vendorId === vendor.id)
   const note = vendor.review?.note
   const at = STAGE_AT[status]
+  const chats = conversations.filter((c) => c.vendorId === vendor.id)
+  const newChats = chats.filter((c) => unreadCount(c, messagesIn(c.id), 'vendor') > 0).length
 
   const send = () => {
     const err = requestChange(vendor.id, message)
@@ -238,6 +241,20 @@ export function Dashboard() {
         </div>
 
         <aside className="space-y-6">
+          {status === 'live' && (
+            <div className="card p-6">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-lg">planner messages</h3>
+                {newChats > 0 && <span className="rounded-full bg-honey px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink">{newChats} new</span>}
+              </div>
+              <p className="mt-2 text-sm text-stone">
+                {chats.length === 0
+                  ? 'when planners message you from your profile or their event boards, the conversation lands in chat.'
+                  : `${chats.length === 1 ? 'one conversation' : `${chats.length} conversations`} with planners.`}
+              </p>
+              <Link to="/chat" className="label-caps mt-4 inline-block border-b border-ink pb-0.5">open chat</Link>
+            </div>
+          )}
           <div className="card p-6">
             <h3 className="text-lg">business information</h3>
             <dl className="mt-4 divide-y divide-mist text-sm">

@@ -5,6 +5,7 @@ import { AddToEventModal } from '../../components/AddToEventModal'
 import { VendorProfileView } from '../../components/VendorProfileView'
 import { VendorCard } from '../../components/cards'
 import { FavouriteButton } from '../../components/network/FavouriteButton'
+import { ChatIcon } from '../../components/chat/ChatAvatar'
 import { categoryBySlug } from '../../data/categories'
 import { isListed, useApp } from '../../store/AppContext'
 import { canPlan } from '../../lib/access'
@@ -39,6 +40,12 @@ export function VendorProfile() {
     <>
       <button className="pill-dark flex-1" onClick={() => setOpen(true)}>add to event</button>
       <FavouriteButton vendor={vendor} variant="outline" />
+      {!preview && user.vendorId !== vendor.id && (
+        <Link to={`/chat?vendor=${vendor.id}${eventCtx ? `&event=${eventCtx}` : ''}`} className="pill-ghost basis-full">
+          <ChatIcon />
+          message
+        </Link>
+      )}
       {onBoards.length > 0 && (
         <p className="w-full text-xs text-stone">
           on {onBoards.map((e) => <Link key={e.id} to={`/events/${e.id}`} className="underline">{e.name}</Link>).reduce<React.ReactNode[]>((acc, el, i) => (i ? [...acc, ', ', el] : [el]), [])}

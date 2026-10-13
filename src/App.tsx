@@ -26,6 +26,7 @@ import { EditProfile } from './pages/vendor/EditProfile'
 import { ApplicationPreview } from './pages/vendor/ApplicationPreview'
 import { Applications } from './pages/admin/Applications'
 import { ListingEditor } from './pages/admin/ListingEditor'
+import { Chat } from './pages/chat/Chat'
 
 // new page: start at the top, or at the #section the link points to (e.g. /terms#vendors)
 function ScrollToTop() {
@@ -91,6 +92,8 @@ export default function App() {
           <Route path="/events" element={<Events />} />
           <Route path="/events/:id" element={<EventBoard />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/chat/:id" element={<Chat />} />
         </Route>
 
         <Route element={<RequireVendor />}>

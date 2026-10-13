@@ -202,6 +202,29 @@ export interface User {
   lastDashboard?: 'planning' | 'vendor' // where log in returns them
 }
 
+// A chat between a planner and a Host It vendor: one per pair, however many events they talk about.
+// The event is the one it was last about, shown as context. Each side's read mark drives unread counts.
+export interface Conversation {
+  id: string
+  plannerId: string
+  vendorId: string
+  eventId?: string
+  createdAt: string
+  updatedAt: string
+  plannerReadAt?: string
+  vendorReadAt?: string
+}
+
+export interface ChatMessage {
+  id: string
+  conversationId: string
+  from: 'planner' | 'vendor'
+  senderId?: string // the account that wrote it; absent for a demo auto-reply
+  text: string
+  createdAt: string
+  auto?: boolean // the POC's stand-in reply from a vendor with no account
+}
+
 // In-app messages, e.g. a vendor hearing back about their application.
 export interface Notification {
   id: string

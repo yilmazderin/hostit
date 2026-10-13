@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNo
 import type {
   CategorySlug,
   ChangeRequest,
+  ChatMessage,
+  Conversation,
   ListingStatus,
   ResetToken,
   EventBoard,
@@ -17,8 +19,9 @@ import type {
 } from '../types'
 import { SEED_APPLICANTS, USERS } from '../data/users'
 import { VENDORS } from '../data/vendors'
-import { SEED_EVENTS, SEED_INQUIRIES } from '../data/seed'
-import { listingOf, vendorCanEdit } from '../lib/access'
+import { SEED_CONVERSATIONS, SEED_EVENTS, SEED_INQUIRIES, SEED_MESSAGES } from '../data/seed'
+import { canPlan, listingOf, vendorCanEdit } from '../lib/access'
+import { AUTO_REPLIES, CHAT_MAX, autoReplyDelay, autoReplyText, sideOf, threadOf, unreadCount } from '../lib/chat'
 import { isEmail } from '../lib/validate'
 import { clear, load, save, uid } from './storage'
 
@@ -34,10 +37,12 @@ interface State {
   changeRequests: ChangeRequest[]
   resetTokens: ResetToken[]
   resetRequests: { email: string; at: string }[] // every request, known email or not, for rate limiting
+  conversations: Conversation[]
+  messages: ChatMessage[] // every chat message, oldest first
   schema: number
 }
 
-const SCHEMA = 2
+const SCHEMA = 3
 
 const initial = (): State => ({
   sessionUserId: null,
@@ -51,6 +56,8 @@ const initial = (): State => ({
   changeRequests: [],
   resetTokens: [],
   resetRequests: [],
+  conversations: SEED_CONVERSATIONS,
+  messages: SEED_MESSAGES,
   schema: SCHEMA,
 })
 
@@ -68,6 +75,9 @@ function migrate(saved: State | null): State | null {
     changeRequests: saved.changeRequests ?? [],
     resetTokens: saved.resetTokens ?? [],
     resetRequests: saved.resetRequests ?? [],
+    // chat arrived in schema 3: older saves get the demo conversations
+    conversations: saved.conversations ?? SEED_CONVERSATIONS,
+    messages: saved.messages ?? SEED_MESSAGES,
     schema: SCHEMA,
   }
 }
@@ -107,6 +117,9 @@ type Action =
   | { type: 'issueResetToken'; token: ResetToken }
   | { type: 'logResetRequest'; email: string }
   | { type: 'useResetToken'; token: string; password: string }
+  // answers: an auto-reply only lands if the planner's message it answers is still the last one
+  | { type: 'sendMessage'; message: ChatMessage; conversation?: Conversation; eventId?: string; answers?: string }
+  | { type: 'readConversation'; id: string; side: 'planner' | 'vendor'; at: string }
 
 const inquiryMessage = (event: EventBoard) =>
   `hi! planning ${event.name} (${event.type}, ${event.guests} guests) on ${event.date}. would love to work with you.`
@@ -253,10 +266,44 @@ function reducer(state: State, action: Action): State {
         resetTokens: state.resetTokens.map((r) => (r.userId === t.userId && !r.usedAt ? { ...r, usedAt: now } : r)),
       }
     }
+    case 'sendMessage': {
+      const m = action.message
+      if (action.answers) {
+        const thread = threadOf(state.messages, m.conversationId)
+        if (thread[thread.length - 1]?.id !== action.answers) return state
+      }
+      const all = action.conversation ? [action.conversation, ...state.conversations] : state.conversations
+      return {
+        ...state,
+        conversations: all.map((c) =>
+          c.id !== m.conversationId
+            ? c
+            : {
+                ...c,
+                updatedAt: m.createdAt,
+                eventId: action.eventId ?? c.eventId,
+                // writing a message means you've read everything before it
+                ...(m.auto ? {} : m.from === 'planner' ? { plannerReadAt: m.createdAt } : { vendorReadAt: m.createdAt }),
+              },
+        ),
+        messages: [...state.messages, m],
+      }
+    }
+    case 'readConversation':
+      return {
+        ...state,
+        conversations: state.conversations.map((c) =>
+          c.id !== action.id ? c : action.side === 'planner' ? { ...c, plannerReadAt: action.at } : { ...c, vendorReadAt: action.at },
+        ),
+      }
     default:
       return state
   }
 }
+
+// Who a message goes to: an existing conversation, or a vendor the planner hasn't written to yet.
+// eventId points the conversation at the event it's now about.
+export type ChatTarget = { conversationId: string; eventId?: string } | { vendorId: string; eventId?: string }
 
 export interface SignUpInput {
   name: string
@@ -322,6 +369,13 @@ interface Ctx {
   vendorById: (id: string) => Vendor | undefined
   vendorBySlug: (slug: string) => Vendor | undefined
   inquiryFor: (eventId: string, vendorId: string) => Inquiry | undefined
+  conversations: Conversation[] // the account's own, as a planner and as the business it runs; newest first
+  messagesIn: (conversationId: string) => ChatMessage[]
+  conversationWith: (vendorId: string) => Conversation | undefined // this planner's chat with a vendor
+  sendMessage: (to: ChatTarget, text: string) => string | null // the conversation's id, or null if it couldn't send
+  readConversation: (conversationId: string) => void
+  unreadChats: number // conversations with something new
+  awaitingReply: (conversationId: string) => boolean // a stand-in reply is on its way
 }
 
 const AppContext = createContext<Ctx | null>(null)
@@ -377,6 +431,50 @@ export function AppProvider({ children }: { children: ReactNode }) {
     () => (user ? state.events.filter((e) => e.ownerId === user.id) : []),
     [state.events, user],
   )
+
+  const conversations = useMemo(
+    () => (user ? state.conversations.filter((c) => sideOf(c, user)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) : []),
+    [state.conversations, user],
+  )
+  const unreadChats = user ? conversations.filter((c) => unreadCount(c, state.messages, sideOf(c, user)!) > 0).length : 0
+
+  // Conversations whose last word is the planner's, sent to a vendor nobody signs in as: those get a stand-in reply.
+  const awaiting = useMemo(() => {
+    const out: { c: Conversation; last: ChatMessage; replies: number }[] = []
+    for (const c of state.conversations) {
+      if (state.accounts.some((u) => u.vendorId === c.vendorId)) continue
+      const thread = threadOf(state.messages, c.id)
+      const last = thread[thread.length - 1]
+      const replies = thread.filter((m) => m.auto).length
+      if (last?.from === 'planner' && replies < AUTO_REPLIES) out.push({ c, last, replies })
+    }
+    return out
+  }, [state.conversations, state.messages, state.accounts])
+
+  // each reply is timed from the message it answers, so a reload or a later message never makes it wait longer
+  useEffect(() => {
+    const timers = awaiting.map(({ c, last, replies }) =>
+      window.setTimeout(() => {
+        const vendor = vendors.find((v) => v.id === c.vendorId)
+        if (!vendor) return
+        const planner = state.accounts.find((u) => u.id === c.plannerId)
+        const event = state.events.find((e) => e.id === c.eventId)
+        dispatch({
+          type: 'sendMessage',
+          answers: last.id,
+          message: {
+            id: uid('m'),
+            conversationId: c.id,
+            from: 'vendor',
+            text: autoReplyText(replies, vendor, planner, event),
+            createdAt: new Date().toISOString(),
+            auto: true,
+          },
+        })
+      }, Math.max(0, Date.parse(last.createdAt) + autoReplyDelay(last.text) - Date.now())),
+    )
+    return () => timers.forEach((t) => window.clearTimeout(t))
+  }, [awaiting])
 
   const value: Ctx = {
     user,
@@ -587,6 +685,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
     vendorBySlug: (slug) => vendors.find((v) => v.slug === slug),
     inquiryFor: (eventId, vendorId) =>
       state.inquiries.find((i) => i.eventId === eventId && i.vendorId === vendorId),
+    conversations,
+    messagesIn: (conversationId) => (conversations.some((c) => c.id === conversationId) ? threadOf(state.messages, conversationId) : []),
+    conversationWith: (vendorId) => (user ? state.conversations.find((c) => c.plannerId === user.id && c.vendorId === vendorId) : undefined),
+    // planners write to any live vendor but their own business; a business answers the planners who wrote to it
+    sendMessage: (to, text) => {
+      const body = text.trim().slice(0, CHAT_MAX)
+      if (!user || !body) return null
+      const now = new Date().toISOString()
+      let c = 'conversationId' in to
+        ? state.conversations.find((x) => x.id === to.conversationId)
+        : state.conversations.find((x) => x.plannerId === user.id && x.vendorId === to.vendorId)
+      let created: Conversation | undefined
+      if (!c) {
+        if ('conversationId' in to) return null
+        const v = vendors.find((x) => x.id === to.vendorId)
+        if (!canPlan(user) || !v || !isListed(v) || user.vendorId === v.id) return null
+        c = created = { id: uid('c'), plannerId: user.id, vendorId: v.id, createdAt: now, updatedAt: now }
+      }
+      const side = sideOf(c, user)
+      if (!side) return null
+      // only the planner's own events can be what a conversation is about
+      const eventId = side === 'planner' && to.eventId && state.events.some((e) => e.id === to.eventId && e.ownerId === user.id) ? to.eventId : undefined
+      dispatch({
+        type: 'sendMessage',
+        conversation: created,
+        eventId,
+        message: { id: uid('m'), conversationId: c.id, from: side, senderId: user.id, text: body, createdAt: now },
+      })
+      return c.id
+    },
+    readConversation: (conversationId) => {
+      const c = conversations.find((x) => x.id === conversationId)
+      const side = c && user ? sideOf(c, user) : null
+      if (!c || !side || unreadCount(c, state.messages, side) === 0) return
+      dispatch({ type: 'readConversation', id: c.id, side, at: new Date().toISOString() })
+    },
+    unreadChats,
+    awaitingReply: (conversationId) => awaiting.some((a) => a.c.id === conversationId),
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

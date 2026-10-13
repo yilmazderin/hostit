@@ -10,7 +10,7 @@ const linkCls = ({ isActive }: { isActive: boolean }) =>
   }`
 
 export function Nav({ dark = true }: { dark?: boolean }) {
-  const { user } = useApp()
+  const { user, unreadChats } = useApp()
   const { theme, toggle } = useTheme()
   const tone = dark ? 'keep-dark bg-ink text-paper' : 'bg-paper text-ink'
 
@@ -31,6 +31,7 @@ export function Nav({ dark = true }: { dark?: boolean }) {
           { to: '/dashboard', label: 'dashboard' },
           { to: '/network', label: 'network' },
           { to: '/events', label: 'your events' },
+          { to: '/chat', label: 'chat' },
         ]
 
   return (
@@ -44,6 +45,13 @@ export function Nav({ dark = true }: { dark?: boolean }) {
           {links.map((l) => (
             <NavLink key={l.to} to={l.to} className={linkCls} end={l.to === '/' || l.to === '/vendor'}>
               {l.label}
+              {l.to === '/chat' && unreadChats > 0 && (
+                <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-honey px-1 align-[1px] text-[10px] font-bold leading-none text-ink">
+                  <span className="sr-only">, </span>
+                  {unreadChats}
+                  <span className="sr-only"> unread</span>
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

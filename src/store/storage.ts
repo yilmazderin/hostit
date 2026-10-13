@@ -1,4 +1,5 @@
-const KEY = 'hostit-poc-v3'
+// a preview build published beside the main site sets its own key, so the two never share demo data
+const KEY = import.meta.env.VITE_STORAGE_KEY || 'hostit-poc-v3'
 
 export function load<T>(): T | null {
   try {

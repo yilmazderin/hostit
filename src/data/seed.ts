@@ -1,4 +1,4 @@
-import type { EventBoard, Inquiry } from '../types'
+import type { ChatMessage, Conversation, EventBoard, Inquiry } from '../types'
 
 export const SEED_EVENTS: EventBoard[] = [
   {
@@ -145,5 +145,105 @@ export const SEED_INQUIRIES: Inquiry[] = [
     message: 'holding nov 13 for a launch night, 90 guests, standing reception.',
     status: 'accepted',
     createdAt: '2026-09-11T12:05:00.000Z',
+  },
+]
+
+// Chats already under way, so the demo opens with something to read: maya has a reply waiting from the pantry,
+// and jordan (a couple cocktails) has a question from maya waiting to be answered.
+export const SEED_CONVERSATIONS: Conversation[] = [
+  {
+    id: 'c-pantry',
+    plannerId: 'u-maya',
+    vendorId: 'v-the-pantry',
+    eventId: 'e-shower',
+    createdAt: '2026-10-09T14:05:00.000Z',
+    updatedAt: '2026-10-12T13:10:00.000Z',
+    plannerReadAt: '2026-10-09T16:40:00.000Z',
+    vendorReadAt: '2026-10-09T16:40:00.000Z',
+  },
+  {
+    id: 'c-acc',
+    plannerId: 'u-maya',
+    vendorId: 'v-a-couple-cocktails',
+    eventId: 'e-launch',
+    createdAt: '2026-10-11T18:30:00.000Z',
+    updatedAt: '2026-10-11T18:31:00.000Z',
+    plannerReadAt: '2026-10-11T18:31:00.000Z',
+  },
+  {
+    id: 'c-florals',
+    plannerId: 'u-maya',
+    vendorId: 'v-lindsays-florals',
+    eventId: 'e-shower',
+    createdAt: '2026-10-08T15:00:00.000Z',
+    updatedAt: '2026-10-08T15:01:00.000Z',
+    plannerReadAt: '2026-10-08T15:01:00.000Z',
+  },
+]
+
+export const SEED_MESSAGES: ChatMessage[] = [
+  {
+    id: 'm-p1',
+    conversationId: 'c-pantry',
+    from: 'planner',
+    senderId: 'u-maya',
+    text: 'hi sam! so happy the naked cake is a go. could we add a small cookie table too? thinking around 40 cookies.',
+    createdAt: '2026-10-09T14:05:00.000Z',
+  },
+  {
+    id: 'm-p2',
+    conversationId: 'c-pantry',
+    from: 'vendor',
+    senderId: 'u-pantry',
+    text: "absolutely. for 40 guests i'd do three dozen in two flavours, plus a few extra for the family. our brown butter chocolate chip is the favourite.",
+    createdAt: '2026-10-09T16:22:00.000Z',
+  },
+  {
+    id: 'm-p3',
+    conversationId: 'c-pantry',
+    from: 'planner',
+    senderId: 'u-maya',
+    text: 'perfect. could one flavour be lemon? the palette is sage, cream and dusty rose.',
+    createdAt: '2026-10-09T16:40:00.000Z',
+  },
+  {
+    id: 'm-p4',
+    conversationId: 'c-pantry',
+    from: 'vendor',
+    senderId: 'u-pantry',
+    text: "lemon with a rose glaze would be gorgeous with that palette. i'll send an updated quote today. would you like them wrapped as favours?",
+    createdAt: '2026-10-12T13:10:00.000Z',
+  },
+  {
+    id: 'm-a1',
+    conversationId: 'c-acc',
+    from: 'planner',
+    senderId: 'u-maya',
+    text: "hi jordan! doors are at 7 for the studio launch. could you build a signature cocktail named after the studio? we're thinking something smoky, with a mocktail twin.",
+    createdAt: '2026-10-11T18:30:00.000Z',
+  },
+  {
+    id: 'm-a2',
+    conversationId: 'c-acc',
+    from: 'planner',
+    senderId: 'u-maya',
+    text: 'happy to send our brand colours if that helps.',
+    createdAt: '2026-10-11T18:31:00.000Z',
+  },
+  {
+    id: 'm-f1',
+    conversationId: 'c-florals',
+    from: 'planner',
+    senderId: 'u-maya',
+    text: 'hi! following up on my inquiry. do you have room on the 24th for a long garden table and a small welcome arrangement?',
+    createdAt: '2026-10-08T15:00:00.000Z',
+  },
+  {
+    id: 'm-f2',
+    conversationId: 'c-florals',
+    from: 'vendor',
+    text: "thanks for reaching out, maya! we'd love to be part of olivia's garden shower. we're checking our calendar for the 24th and will get back to you shortly.",
+    createdAt: '2026-10-08T15:01:00.000Z',
+    auto: true,
   },
 ]

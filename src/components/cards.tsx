@@ -6,6 +6,7 @@ import { formatDate, formatTime, plural } from '../lib/format'
 import { boardItems, isConsidering, needsProgress, type BoardItem } from '../lib/vendorStatus'
 import { useApp } from '../store/AppContext'
 import { StatusMenu } from './board/StatusMenu'
+import { ChatIcon } from './chat/ChatAvatar'
 import { FavouriteButton } from './network/FavouriteButton'
 import { Chip } from './ui'
 
@@ -205,10 +206,22 @@ export function BoardVendorCard({
         <div className="mt-1 truncate text-xs text-stone">{sub}</div>
         <div className="mt-auto flex items-center justify-between gap-2 pt-3">
           <span className={`min-w-0 truncate rounded-full px-2.5 py-0.5 text-[10px] font-semibold lowercase ${CATEGORY_BG[cat.color]}`}>{cat.name}</span>
-          {item.kind === 'network' && item.status === 'not-contacted' && (
-            <button onClick={onContact} className="shrink-0 text-xs font-semibold underline decoration-ink/30 underline-offset-2 hover:decoration-ink">
-              send inquiry
-            </button>
+          {item.kind === 'network' && (
+            <div className="flex shrink-0 items-center gap-2">
+              {item.status === 'not-contacted' && (
+                <button onClick={onContact} className="text-xs font-semibold underline decoration-ink/30 underline-offset-2 hover:decoration-ink">
+                  send inquiry
+                </button>
+              )}
+              <Link
+                to={`/chat?vendor=${item.vendor.id}&event=${eventId}`}
+                className="-my-1 rounded-full p-1.5 text-stone transition-colors hover:bg-mist hover:text-ink"
+                aria-label={`message ${item.name}`}
+                title="message"
+              >
+                <ChatIcon />
+              </Link>
+            </div>
           )}
           {item.kind === 'custom' && (
             <div className="flex shrink-0 items-center gap-3 text-xs">
