@@ -175,23 +175,18 @@ export function BoardVendorCard({
         ) : (
           <button onClick={onEdit} className="block aspect-[4/3] w-full overflow-hidden" aria-label={`edit ${item.name}`}>{image}</button>
         )}
-        {item.kind === 'custom' ? (
-          <label className="absolute left-3 top-3 cursor-pointer rounded-full bg-paper" title="change status">
-            <StatusBadge status={item.status} chevron />
-            <select
-              aria-label={`status for ${item.name}`}
-              value={item.custom.status}
-              onChange={(e) => onStatus(e.target.value as ManualStatus)}
-              className="absolute inset-0 cursor-pointer opacity-0"
-            >
-              {STATUS_GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}
-            </select>
-          </label>
-        ) : (
-          <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-paper">
-            <StatusBadge status={item.status} />
-          </span>
-        )}
+        {/* every booking on the board, host it vendor or their own, takes the planner's status */}
+        <label className="absolute left-3 top-3 cursor-pointer rounded-full bg-paper" title="change status">
+          <StatusBadge status={item.status} chevron />
+          <select
+            aria-label={`status for ${item.name}`}
+            value={item.group}
+            onChange={(e) => onStatus(e.target.value as ManualStatus)}
+            className="absolute inset-0 cursor-pointer opacity-0"
+          >
+            {STATUS_GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}
+          </select>
+        </label>
         <button
           onClick={onRemove}
           className="absolute right-3 top-3 rounded-full bg-paper/90 p-1.5 text-stone transition-colors hover:bg-paper hover:text-ink"

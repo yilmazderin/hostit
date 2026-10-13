@@ -41,7 +41,8 @@ export function boardItems(
     .map((id) => vendors.find((v) => v.id === id))
     .filter((v): v is Vendor => !!v)
     .map<BoardItem>((vendor) => {
-      const status = boardStatus(inquiryFor(event.id, vendor.id))
+      // the planner's own record of the booking wins; otherwise it follows the inquiry
+      const status = event.vendorStatuses?.[vendor.id] ?? boardStatus(inquiryFor(event.id, vendor.id))
       return { kind: 'network', key: vendor.id, name: vendor.name, categorySlug: vendor.categorySlug, status, group: groupOf(status), vendor }
     })
   const custom = (event.customVendors ?? []).map<BoardItem>((c) => ({
