@@ -4,19 +4,26 @@ import { Footer, Nav } from '../../components/Nav'
 import { dashboardPath } from '../../components/RequireRole'
 import { Field } from '../../components/ui'
 import { PLANNER_TYPES } from '../../data/tags'
+import { LISTING_LABEL, listingOf } from '../../lib/application'
 import { formatDate } from '../../lib/format'
 import { useApp } from '../../store/AppContext'
+import { DemoInbox } from './DemoInbox'
 
 const ROLE_LABEL = { customer: 'user account', vendor: 'vendor account', admin: 'host it team' }
 
+const maskEmail = (email: string) => {
+  const at = email.lastIndexOf('@')
+  return `${email.slice(0, 1)}•••${email.slice(at)}`
+}
+
 export function Account() {
-  const { user, updateAccount, logout, vendorById } = useApp()
+  const { user, updateAccount, logout, myVendor, requestPasswordReset } = useApp()
   const nav = useNavigate()
   const [profile, setProfile] = useState(() => ({ name: user?.name ?? '', email: user?.email ?? '' }))
-  const [pw, setPw] = useState({ current: '', next: '', confirm: '' })
   const [msg, setMsg] = useState<{ section: string; text: string; ok: boolean } | null>(null)
+  const [reset, setReset] = useState<{ to: string; link?: string } | null>(null)
+  const [resetError, setResetError] = useState('')
   if (!user) return null
-  const vendor = user.vendorId ? vendorById(user.vendorId) : undefined
 
   const report = (section: string, error: string | null, ok: string) => setMsg({ section, text: error ?? ok, ok: !error })
   const saveProfile = (e: FormEvent) => {
@@ -24,13 +31,13 @@ export function Account() {
     if (!profile.name.trim()) return report('profile', 'add your name.', '')
     report('profile', updateAccount({ name: profile.name.trim(), email: profile.email }), 'saved.')
   }
-  const savePassword = (e: FormEvent) => {
-    e.preventDefault()
-    if (pw.current !== user.password) return report('password', "your current password isn't right.", '')
-    if (pw.next !== pw.confirm) return report('password', "the new passwords don't match.", '')
-    const err = updateAccount({ password: pw.next })
-    report('password', err, 'password updated.')
-    if (!err) setPw({ current: '', next: '', confirm: '' })
+  // With a real auth provider this is its own reset call (e.g. Supabase resetPasswordForEmail, Firebase
+  // sendPasswordResetEmail): it emails the link itself and the app never sees it. The POC hands it back for the demo inbox.
+  const changePassword = () => {
+    const res = requestPasswordReset(user.email)
+    if (res.error) return setResetError(res.error)
+    setResetError('')
+    setReset({ to: user.email, link: res.link })
   }
   const note = (section: string) =>
     msg?.section === section && msg.text ? <p className={`text-sm ${msg.ok ? 'text-stone' : 'text-danger'}`}>{msg.text}</p> : null
@@ -61,7 +68,7 @@ export function Account() {
           </form>
         </Panel>
 
-        {user.role === 'customer' && (
+        {user.role !== 'admin' && (
           <Panel title="account type" sub="what best describes you. everyone gets the same tools for now.">
             <div className="space-y-2" role="radiogroup" aria-label="account type">
               {PLANNER_TYPES.map((t) => (
@@ -84,27 +91,37 @@ export function Account() {
           </Panel>
         )}
 
-        {vendor && (
-          <Panel title="your business" sub="your public profile is managed from your vendor dashboard.">
-            <div className="flex flex-wrap items-center justify-between gap-4 text-sm">
-              <span><span className="font-semibold">{vendor.name}</span> · {vendor.listing === undefined || vendor.listing === 'approved' ? 'in the network' : vendor.listing === 'pending' ? 'application under review' : vendor.listing === 'rejected' ? 'application not approved' : 'application in progress'}</span>
-              <Link to="/vendor" className="pill-ghost">vendor dashboard</Link>
-            </div>
-          </Panel>
-        )}
+        {user.role !== 'admin' &&
+          (myVendor ? (
+            <Panel title="your business" sub="your application and public profile are managed in the vendor portal.">
+              <div className="flex flex-wrap items-center justify-between gap-4 text-sm">
+                <span><span className="font-semibold">{myVendor.name}</span> · {LISTING_LABEL[listingOf(myVendor)]}</span>
+                <Link to="/vendor" className="pill-ghost">vendor portal</Link>
+              </div>
+            </Panel>
+          ) : (
+            <Panel title="host it network" sub="run an event business? apply with this account. your events and planning stay as they are.">
+              <Link to="/join" className="pill-ghost">apply to join the network</Link>
+            </Panel>
+          ))}
 
-        <Panel title="password & security">
-          <form onSubmit={savePassword} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Field label="current"><input className="field h-12" type="password" value={pw.current} onChange={(e) => setPw({ ...pw, current: e.target.value })} autoComplete="current-password" /></Field>
-              <Field label="new"><input className="field h-12" type="password" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} autoComplete="new-password" /></Field>
-              <Field label="confirm new"><input className="field h-12" type="password" value={pw.confirm} onChange={(e) => setPw({ ...pw, confirm: e.target.value })} autoComplete="new-password" /></Field>
+        <Panel title="security">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="text-sm">
+              <span className="block font-semibold">password</span>
+              <span className="block text-stone">we'll email you a secure link to set a new one.</span>
             </div>
-            <div className="flex items-center justify-between gap-4">
-              {note('password') ?? <span className="text-xs text-stone">at least 8 characters.</span>}
-              <button className="pill-dark" type="submit" disabled={!pw.current || !pw.next}>update password</button>
-            </div>
-          </form>
+            <button className="pill-ghost" onClick={changePassword}>{reset ? 'send a new link' : 'change password'}</button>
+          </div>
+          {reset && (
+            <p className="mt-4 text-sm text-stone">
+              we've sent a reset link to <span className="font-semibold text-ink">{maskEmail(reset.to)}</span>. it works once and expires in 30 minutes.
+            </p>
+          )}
+          {resetError && <p className="mt-4 text-sm text-danger">{resetError}</p>}
+          {reset?.link && (
+            <div className="mt-5"><DemoInbox to={maskEmail(reset.to)} link={reset.link} /></div>
+          )}
         </Panel>
 
         <Panel title="legal">

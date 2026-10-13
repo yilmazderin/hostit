@@ -12,7 +12,7 @@ const PLANNER_TOOLS = [
   {
     title: 'the planning survey',
     tag: 'open to everyone',
-    body: "five quick questions: what you're planning, how many guests, the date, the vibe and what you need. we match you with vendors who fit and are free that day.",
+    body: "five quick questions: what you're planning, how many guests, the date, the vibe and what you need. we match you with vendors who fit your plans.",
   },
   {
     title: 'event boards',
@@ -27,16 +27,16 @@ const PLANNER_TOOLS = [
 ]
 
 const VENDOR_STEPS = [
-  ['create a vendor account', 'a login for you and a draft listing for your business.'],
-  ['build your profile and apply', "add your photos, services and the events you're best for, then submit it for review."],
+  ['create your account', 'one login for planning events and for your business.'],
+  ['complete your application', "add your photos, services and the events you're best for, then submit it for review."],
   ['host it reviews', "the host it team reviews every application. applying doesn't guarantee a place in the network."],
-  ['your listing goes live', 'once approved, planners can find you, pin you to their boards and send inquiries.'],
+  ['we publish your profile', "if you're approved, host it prepares your public profile and lets you know when it's live."],
 ]
 
 const VENDOR_TOOLS = [
-  ['your profile', 'keep your photos, services and details current, so planners see you at your best.'],
-  ['availability', 'block out the dates you\'re booked, so the planning survey only matches you when you\'re free.'],
-  ['inquiries', "see each planner's event details in one place and accept or decline."],
+  ['your profile', 'host it prepares and publishes your profile, so planners can find you and pin you to their boards.'],
+  ['changes', "need something updated? send host it a change request and we'll take care of your listing."],
+  ['opportunities', 'approved vendors may be considered for social features, collaborations and future event opportunities.'],
 ]
 
 const jump = 'pill-ghost border-paper/40 text-paper hover:border-paper'

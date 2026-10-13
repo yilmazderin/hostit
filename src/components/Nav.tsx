@@ -22,22 +22,16 @@ export function Nav({ dark = true }: { dark?: boolean }) {
         { to: '/network', label: 'network' },
         { to: '/services', label: 'services' },
       ]
-    : user.role === 'customer'
+    : user.role === 'admin'
       ? [
+          { to: '/admin', label: 'applications' },
+          { to: '/network', label: 'network' },
+        ]
+      : [
           { to: '/dashboard', label: 'dashboard' },
           { to: '/network', label: 'network' },
           { to: '/events', label: 'your events' },
         ]
-      : user.role === 'vendor'
-        ? [
-            { to: '/vendor', label: 'dashboard' },
-            { to: '/vendor/profile', label: 'profile' },
-            { to: '/vendor/availability', label: 'availability' },
-          ]
-        : [
-            { to: '/admin', label: 'applications' },
-            { to: '/network', label: 'network' },
-          ]
 
   return (
     <header className={`${tone} relative z-20`}>
@@ -125,7 +119,17 @@ function AccountMenu() {
             <div className="truncate text-sm font-semibold text-ink">{user.name}</div>
             <div className="truncate text-xs text-stone">{user.email}</div>
           </div>
-          <Link role="menuitem" to={dashboardPath(user)} className={item} onClick={() => setOpen(false)}>dashboard</Link>
+          {user.role === 'admin' ? (
+            <Link role="menuitem" to="/admin" className={item} onClick={() => setOpen(false)}>applications</Link>
+          ) : (
+            <>
+              {/* one account, two experiences: switch between them here */}
+              <Link role="menuitem" to="/dashboard" className={item} onClick={() => setOpen(false)}>planning dashboard</Link>
+              <Link role="menuitem" to={user.vendorId ? '/vendor' : '/join'} className={item} onClick={() => setOpen(false)}>
+                {user.vendorId ? 'vendor portal' : 'apply to join the network'}
+              </Link>
+            </>
+          )}
           <Link role="menuitem" to="/account" className={item} onClick={() => setOpen(false)}>account settings</Link>
           <button
             role="menuitem"

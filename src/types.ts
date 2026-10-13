@@ -4,7 +4,9 @@ export type Role = 'customer' | 'vendor' | 'admin'
 export type PlannerType = 'self' | 'business' | 'professional'
 
 // A vendor record's place in the curated network. Seeded vendors have no listing field: they're approved.
-export type ListingStatus = 'draft' | 'pending' | 'approved' | 'rejected'
+// draft → pending → (needs-info ↔ pending) → approved (host it prepares the profile) → live. Or rejected.
+// Seeded vendors have no listing field: they're live.
+export type ListingStatus = 'draft' | 'pending' | 'needs-info' | 'approved' | 'live' | 'rejected'
 
 export type EventType =
   | 'wedding'
@@ -66,9 +68,38 @@ export interface Vendor {
   images: string[]
   featured?: boolean
   tags?: string[] // category-specific offerings used for filtering, e.g. 'mobile bar', 'wedding'
-  listing?: ListingStatus // absent means approved
+  listing?: ListingStatus // absent means live
   submittedAt?: string
+  submission?: VendorSubmission
   review?: { decidedAt: string; note?: string }
+  publishedAt?: string
+}
+
+// What the vendor sent for review, frozen at submit time. Host It's later edits change the listing, not this.
+export type VendorSubmission = Pick<
+  Vendor,
+  'name' | 'categorySlug' | 'location' | 'tagline' | 'description' | 'services' | 'bestFor' | 'vibes' | 'guestRange' | 'instagram' | 'website' | 'images' | 'tags'
+>
+
+// A live vendor asking Host It to change their public listing (vendors can't edit it directly).
+export interface ChangeRequest {
+  id: string
+  vendorId: string
+  userId: string
+  message: string
+  createdAt: string
+  status: 'open' | 'resolved'
+  resolvedAt?: string
+  reply?: string
+}
+
+// Single-use password reset link. The POC has no mail server, so the "email" is shown in a demo inbox.
+export interface ResetToken {
+  token: string
+  userId: string
+  createdAt: string
+  expiresAt: string
+  usedAt?: string
 }
 
 export type VendorOverride = Partial<
@@ -90,6 +121,8 @@ export type VendorOverride = Partial<
     | 'tags'
     | 'listing'
     | 'submittedAt'
+    | 'submission'
+    | 'publishedAt'
     | 'review'
   >
 >
@@ -165,6 +198,7 @@ export interface User {
   plannerType?: PlannerType
   termsAcceptedAt?: string
   createdAt?: string
+  lastDashboard?: 'planning' | 'vendor' // where log in returns them
 }
 
 // In-app messages, e.g. a vendor hearing back about their application.
@@ -182,6 +216,7 @@ export interface Survey {
   type: EventType | null
   guests: number
   date: string
+  time?: string // saved to the event; never used to filter vendors
   vibes: VibeTag[]
   needs: CategorySlug[]
 }

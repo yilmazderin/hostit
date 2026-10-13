@@ -144,138 +144,144 @@ export function EventBoard() {
         </div>
       </section>
 
-      <section className="container-x pt-10">
-        <NeedsTracker
-          event={event}
-          tally={tally}
-          activeCategory={categoryFilter}
-          onSelectCategory={filterFromNeeds}
-          onChange={(patch) => updateEvent(event.id, patch)}
-        />
-      </section>
+      <div className="container-x grid gap-x-10 gap-y-14 pb-14 pt-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="min-w-0">
+          <section>
+            <NeedsTracker
+              event={event}
+              tally={tally}
+              activeCategory={categoryFilter}
+              onSelectCategory={filterFromNeeds}
+              onChange={(patch) => updateEvent(event.id, patch)}
+            />
+          </section>
 
-      <section className="container-x pb-14 pt-12">
-        <div ref={vendorsTop} className="mb-5 flex scroll-mt-6 flex-wrap items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl">vendors</h2>
-            <p className="mt-1 text-sm text-stone">
-              <span className="font-semibold text-ink">{countIn('confirmed')} confirmed</span>
-              {' · '}{considering} considering
-              {countIn('declined') > 0 && <> · {countIn('declined')} declined or unavailable</>}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              className={`pill-ghost ${resultsStale ? 'border-ink' : ''}`}
-              onClick={() => nav(`/plan/results?event=${event.id}`, { state: { updated: resultsStale } })}
-              title={resultsStale ? 'your event details changed since you last looked at your matches' : 'your matched host it vendors'}
-            >
-              {resultsStale && <span className="h-2 w-2 rounded-full bg-honey" aria-hidden="true" />}
-              {resultsStale ? 'update results' : 'view results'}
-            </button>
-            {addVendor('right')}
-          </div>
-        </div>
-
-        {items.length > 0 && (
-          <div className="mb-8 space-y-3">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <div className="flex w-full items-center justify-between gap-3">
-                <span className="label-caps text-stone">status</span>
-                <div className="flex items-center gap-2">
-                  <span className="label-caps hidden text-stone sm:inline">group by</span>
-                  <div className="inline-flex rounded-full border border-mist-deep p-0.5" role="group" aria-label="group vendors by">
-                    {(['status', 'category'] as const).map((k) => (
-                      <button
-                        key={k}
-                        onClick={() => setOrganize(k)}
-                        aria-pressed={organize === k}
-                        className={`rounded-full px-3 py-1 text-xs transition-colors ${organize === k ? 'bg-ink text-paper' : 'text-stone hover:text-ink'}`}
-                      >
-                        {k}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+          <section className="pt-12">
+            <div ref={vendorsTop} className="mb-5 flex scroll-mt-6 flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 className="text-2xl">vendors</h2>
+                <p className="mt-1 text-sm text-stone">
+                  <span className="font-semibold text-ink">{countIn('confirmed')} confirmed</span>
+                  {' · '}{considering} considering
+                  {countIn('declined') > 0 && <> · {countIn('declined')} declined or unavailable</>}
+                </p>
               </div>
-              <Chip active={!statusFilter} onClick={() => setStatusFilter(null)}>all <span className="ml-1 opacity-60">{items.length}</span></Chip>
-              {STATUS_GROUPS.map((g) => (
-                <Chip key={g.key} active={statusFilter === g.key} onClick={() => setStatusFilter(statusFilter === g.key ? null : g.key)}>
-                  <span className={`mr-1.5 h-2 w-2 rounded-full ${STATUS_DOT[g.key]}`} />
-                  {g.label} <span className="ml-1 opacity-60">{countIn(g.key)}</span>
-                </Chip>
-              ))}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  className={`pill-ghost ${resultsStale ? 'border-ink' : ''}`}
+                  onClick={() => nav(`/plan/results?event=${event.id}`, { state: { updated: resultsStale } })}
+                  title={resultsStale ? 'your event details changed since you last looked at your matches' : 'your matched host it vendors'}
+                >
+                  {resultsStale && <span className="h-2 w-2 rounded-full bg-honey" aria-hidden="true" />}
+                  {resultsStale ? 'update results' : 'view results'}
+                </button>
+                {addVendor('right')}
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="label-caps w-full text-stone">category</span>
-              <Chip active={!categoryFilter} onClick={() => setCategoryFilter(null)}>all</Chip>
-              {boardCategories.map((c) => (
-                <Chip key={c.slug} active={categoryFilter === c.slug} onClick={() => setCategoryFilter(categoryFilter === c.slug ? null : c.slug)}>
-                  {c.name} <span className="ml-1 opacity-60">{items.filter((p) => p.categorySlug === c.slug).length}</span>
-                </Chip>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {items.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-mist-deep p-14 text-center">
-            <h3 className="text-xl">no vendors yet</h3>
-            <p className="mt-2 text-sm text-stone">find matches from the host it network, or add someone you already work with.</p>
-            <div className="mt-6 flex justify-center">{addVendor('center')}</div>
-          </div>
-        ) : visible.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-mist-deep p-12 text-center">
-            <h3 className="text-xl">
-              {categoryFilter && !items.some((p) => p.categorySlug === categoryFilter)
-                ? `no ${categoryBySlug(categoryFilter).name} on the board yet`
-                : 'no vendors match these filters'}
-            </h3>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              {categoryFilter && (
-                <Link to={`/plan/results?event=${event.id}&category=${categoryFilter}`} className="pill-dark">find {categoryBySlug(categoryFilter).name}</Link>
-              )}
-              <button className="pill-ghost" onClick={() => { setStatusFilter(null); setCategoryFilter(null) }}>clear filters</button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-10">
-            {sections.filter((s) => s.items.length > 0).map((s) => (
-              <div key={s.key}>
-                <div className="mb-4 flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full ${s.dot}`} />
-                  <h3 className="label-caps text-ink">{s.label}</h3>
-                  <span className="text-xs text-stone">{s.items.length}</span>
+            {items.length > 0 && (
+              <div className="mb-8 space-y-3">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <div className="flex w-full items-center justify-between gap-3">
+                    <span className="label-caps text-stone">status</span>
+                    <div className="flex items-center gap-2">
+                      <span className="label-caps hidden text-stone sm:inline">group by</span>
+                      <div className="inline-flex rounded-full border border-mist-deep p-0.5" role="group" aria-label="group vendors by">
+                        {(['status', 'category'] as const).map((k) => (
+                          <button
+                            key={k}
+                            onClick={() => setOrganize(k)}
+                            aria-pressed={organize === k}
+                            className={`rounded-full px-3 py-1 text-xs transition-colors ${organize === k ? 'bg-ink text-paper' : 'text-stone hover:text-ink'}`}
+                          >
+                            {k}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <Chip active={!statusFilter} onClick={() => setStatusFilter(null)}>all <span className="ml-1 opacity-60">{items.length}</span></Chip>
+                  {STATUS_GROUPS.map((g) => (
+                    <Chip key={g.key} active={statusFilter === g.key} onClick={() => setStatusFilter(statusFilter === g.key ? null : g.key)}>
+                      <span className={`mr-1.5 h-2 w-2 rounded-full ${STATUS_DOT[g.key]}`} />
+                      {g.label} <span className="ml-1 opacity-60">{countIn(g.key)}</span>
+                    </Chip>
+                  ))}
                 </div>
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {s.items.map((p) => (
-                    <BoardVendorCard
-                      key={p.key}
-                      item={p}
-                      eventId={event.id}
-                      onContact={() => contactVendor(event.id, p.key)}
-                      onRemove={() => (p.kind === 'network' ? removeVendorFromEvent(event.id, p.key) : removeCustom(p.key))}
-                      onEdit={() => p.kind === 'custom' && setCustomEditing(p.custom)}
-                      onStatus={(status) => setCustomStatus(p.key, status)}
-                    />
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="label-caps w-full text-stone">category</span>
+                  <Chip active={!categoryFilter} onClick={() => setCategoryFilter(null)}>all</Chip>
+                  {boardCategories.map((c) => (
+                    <Chip key={c.slug} active={categoryFilter === c.slug} onClick={() => setCategoryFilter(categoryFilter === c.slug ? null : c.slug)}>
+                      {c.name} <span className="ml-1 opacity-60">{items.filter((p) => p.categorySlug === c.slug).length}</span>
+                    </Chip>
                   ))}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </section>
+            )}
 
-      <section className="border-y border-mist bg-mist/40">
-        <div className="container-x py-12">
-          <h2 className="text-2xl">planning tools</h2>
+            {items.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-mist-deep p-14 text-center">
+                <h3 className="text-xl">no vendors yet</h3>
+                <p className="mt-2 text-sm text-stone">find matches from the host it network, or add someone you already work with.</p>
+                <div className="mt-6 flex justify-center">{addVendor('center')}</div>
+              </div>
+            ) : visible.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-mist-deep p-12 text-center">
+                <h3 className="text-xl">
+                  {categoryFilter && !items.some((p) => p.categorySlug === categoryFilter)
+                    ? `no ${categoryBySlug(categoryFilter).name} on the board yet`
+                    : 'no vendors match these filters'}
+                </h3>
+                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                  {categoryFilter && (
+                    <Link to={`/plan/results?event=${event.id}&category=${categoryFilter}`} className="pill-dark">find {categoryBySlug(categoryFilter).name}</Link>
+                  )}
+                  <button className="pill-ghost" onClick={() => { setStatusFilter(null); setCategoryFilter(null) }}>clear filters</button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-10">
+                {sections.filter((s) => s.items.length > 0).map((s) => (
+                  <div key={s.key}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className={`h-2.5 w-2.5 rounded-full ${s.dot}`} />
+                      <h3 className="label-caps text-ink">{s.label}</h3>
+                      <span className="text-xs text-stone">{s.items.length}</span>
+                    </div>
+                    <div className="grid gap-5 sm:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]">
+                      {s.items.map((p) => (
+                        <BoardVendorCard
+                          key={p.key}
+                          item={p}
+                          eventId={event.id}
+                          onContact={() => contactVendor(event.id, p.key)}
+                          onRemove={() => (p.kind === 'network' ? removeVendorFromEvent(event.id, p.key) : removeCustom(p.key))}
+                          onEdit={() => p.kind === 'custom' && setCustomEditing(p.custom)}
+                          onStatus={(status) => setCustomStatus(p.key, status)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* capped to the viewport and scrolling on its own: a long to-do list would otherwise stick with its end out of reach */}
+        <aside
+          aria-labelledby="planning-tools"
+          className="rounded-3xl border border-mist bg-mist/40 p-5 md:p-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain lg:p-5 lg:[scrollbar-width:thin]"
+        >
+          <h2 id="planning-tools" className="text-2xl">planning tools</h2>
           <p className="mt-1 text-sm text-stone">tasks and notes for this event. only you can see them.</p>
-          <div className="mt-6 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+          <div className="mt-6 grid items-start gap-8">
             <TodoList tasks={event.tasks ?? []} onChange={(tasks) => updateEvent(event.id, { tasks })} />
             <StickyNotes notes={event.stickies ?? []} onChange={(stickies) => updateEvent(event.id, { stickies })} />
           </div>
-        </div>
-      </section>
+        </aside>
+      </div>
 
       <Modal open={draft !== null} onClose={closeEditor} title="edit details">
         {draft && <div className="space-y-4">
@@ -330,7 +336,7 @@ export function EventBoard() {
         <div className="mt-6 flex justify-end gap-3">
           <button className="pill-ghost" onClick={() => setConfirmDelete(false)}>keep event</button>
           <button
-            className="pill bg-danger text-white hover:bg-danger/85"
+            className="pill bg-danger text-paper hover:bg-danger/85"
             onClick={() => {
               deleteEvent(event.id)
               nav('/events')

@@ -26,7 +26,8 @@ import { VendorCard } from '../../components/cards'
 import { Chip, Field, Modal } from '../../components/ui'
 import { VendorProfileView } from '../../components/VendorProfileView'
 import { CATEGORIES, categoryBySlug } from '../../data/categories'
-import { formatDate, plural } from '../../lib/format'
+import { formatDate, formatTime, plural } from '../../lib/format'
+import { canPlan } from '../../lib/access'
 import { eventSurvey, groupByCategory, matchVendors, surveyKey } from '../../lib/matchVendors'
 import { useApp } from '../../store/AppContext'
 
@@ -54,7 +55,7 @@ export function PlanResults() {
   }, [user, surveyJson, selected.join()])
   const [preview, setPreview] = useState<Vendor | null>(null)
   const [confirming, setConfirming] = useState(false)
-  const [contact, setContact] = useState(true)
+  const [contact, setContact] = useState(false)
   const [mode, setMode] = useState<'new' | 'existing'>(ctxEvent ? 'existing' : 'new')
   const [targetId, setTargetId] = useState(ctxEvent?.id ?? myEvents[0]?.id ?? '')
   const [name, setName] = useState(() => (survey?.type ? `${survey.type} · ${formatDate(survey.date)}` : ''))
@@ -62,6 +63,7 @@ export function PlanResults() {
   if (!survey) return <Navigate to="/plan" replace />
   const results = matchVendors(survey, networkVendors)
   const groups = groupByCategory(results, survey.needs)
+  const when = survey.time ? `${formatDate(survey.date)} · ${formatTime(survey.time)}` : formatDate(survey.date)
   const toggle = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
   const onBoard = (id: string) => !!ctxEvent?.vendorIds.includes(id)
 
@@ -79,7 +81,7 @@ export function PlanResults() {
   const confirm = () => {
     let id = targetId
     if (mode === 'new') {
-      const ev = createEvent({ name: name.trim() || `${survey.type}`, type: survey.type!, guests: survey.guests, date: survey.date, vibes: survey.vibes, needs: survey.needs })
+      const ev = createEvent({ name: name.trim() || `${survey.type}`, type: survey.type!, guests: survey.guests, date: survey.date, time: survey.time, vibes: survey.vibes, needs: survey.needs })
       id = ev.id
     }
     addVendorsToEvent(id, selected, undefined, contact)
@@ -102,7 +104,7 @@ export function PlanResults() {
           <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
             <Chip tone="paper">{survey.type}</Chip>
             <Chip tone="paper">{plural(survey.guests, 'guest')}</Chip>
-            <Chip tone="paper">{formatDate(survey.date)}</Chip>
+            <Chip tone="paper">{when}</Chip>
             {survey.vibes.map((v) => <Chip key={v} tone="paper">{v}</Chip>)}
             {fromEvent ? (
               <Link to={`/events/${ctxEvent!.id}`} className="ml-2 text-xs text-paper/60 underline hover:text-paper">change event details</Link>
@@ -145,7 +147,7 @@ export function PlanResults() {
                         {r.reasons.map((x) => (
                           <span key={x} className="rounded-full bg-moss/40 px-2.5 py-0.5 text-[11px] leading-4 lowercase text-ink">{x}</span>
                         ))}
-                        {r.reasons.length === 0 && <span className="text-xs text-stone">available and in your category</span>}
+                        {r.reasons.length === 0 && <span className="text-xs text-stone">in a category you need</span>}
                       </div>
                     }
                   />
@@ -156,14 +158,14 @@ export function PlanResults() {
         })}
         {groups.length === 0 && (
           <div className="rounded-3xl border border-dashed border-mist-deep p-16 text-center">
-            <h3 className="text-xl">no one's free that day in {category ? categoryBySlug(category).name : 'those categories'}</h3>
-            <p className="mt-2 text-sm text-stone">try another date or another category.</p>
+            <h3 className="text-xl">no matches in {category ? categoryBySlug(category).name : 'those categories'} yet</h3>
+            <p className="mt-2 text-sm text-stone">try another category, or check back as the network grows.</p>
             <Link to={fromEvent ? `/events/${ctxEvent!.id}` : '/plan'} className="pill-dark mt-6">{fromEvent ? 'back to the board' : 'edit answers'}</Link>
           </div>
         )}
       </section>
 
-      {(!user || user.role === 'customer') && <div className="fixed inset-x-0 bottom-0 z-30 border-t border-mist bg-paper/90 backdrop-blur">
+      {(!user || canPlan(user)) && <div className="fixed inset-x-0 bottom-0 z-30 border-t border-mist bg-paper/90 backdrop-blur">
         <div className="container-x flex min-h-20 items-center justify-between gap-4 py-3">
           <div className="min-w-0 text-sm">
             <span className="font-semibold">{plural(selected.length, 'vendor')}</span>{' '}
@@ -183,7 +185,7 @@ export function PlanResults() {
           ) : ctxEvent ? (
             <button className="pill-dark shrink-0" disabled={selected.length === 0} onClick={addToEvent}>add to board</button>
           ) : (
-            <button className="pill-dark shrink-0" disabled={selected.length === 0} onClick={() => setConfirming(true)}>confirm selection</button>
+            <button className="pill-dark shrink-0" disabled={selected.length === 0} onClick={() => { setContact(false); setConfirming(true) }}>confirm selection</button>
           )}
         </div>
       </div>}
@@ -212,7 +214,7 @@ export function PlanResults() {
           <button className={`chip ${mode === 'existing' ? 'border-ink bg-ink text-paper' : 'border-mist-deep'}`} onClick={() => setMode('existing')} disabled={!myEvents.length}>existing board</button>
         </div>
         {mode === 'new' ? (
-          <Field label="board name" hint={`${survey.type} · ${plural(survey.guests, 'guest')} · ${formatDate(survey.date)} will be saved with it.`}>
+          <Field label="board name" hint={`${survey.type} · ${plural(survey.guests, 'guest')} · ${when} will be saved with it.`}>
             <input className="field" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
           </Field>
         ) : (

@@ -20,6 +20,7 @@ export function Plan() {
     type: ctxEvent?.type ?? null,
     guests: ctxEvent?.guests ?? 50,
     date: ctxEvent?.date ?? '',
+    time: ctxEvent?.time ?? '',
     vibes: ctxEvent?.vibes ?? [],
     needs: ctxEvent?.needs ?? [],
   })
@@ -48,7 +49,7 @@ export function Plan() {
   const hints = [
     'pick the closest fit. you can change it later.',
     'a rough number is fine.',
-    'we only show vendors who are free that day.',
+    "we'll save it to your event board.",
     'choose as many as feel right.',
     'we\'ll curate a shortlist for each.',
   ]
@@ -100,12 +101,26 @@ export function Plan() {
               </div>
             )}
             {step === 3 && (
-              <input
-                type="date"
-                value={survey.date}
-                onChange={(e) => setSurvey({ ...survey, date: e.target.value })}
-                className="rounded-2xl border border-paper/30 bg-transparent px-6 py-5 text-3xl text-paper [color-scheme:dark] focus:border-paper"
-              />
+              <div className="flex flex-wrap items-end gap-4">
+                <label className="block max-w-full">
+                  <span className="label-caps mb-2 block text-paper/50">date</span>
+                  <input
+                    type="date"
+                    value={survey.date}
+                    onChange={(e) => setSurvey({ ...survey, date: e.target.value })}
+                    className="max-w-full rounded-2xl border border-paper/30 bg-transparent px-6 py-5 text-3xl text-paper [color-scheme:dark] focus:border-paper"
+                  />
+                </label>
+                <label className="block max-w-full">
+                  <span className="label-caps mb-2 block text-paper/50">time · optional</span>
+                  <input
+                    type="time"
+                    value={survey.time ?? ''}
+                    onChange={(e) => setSurvey({ ...survey, time: e.target.value })}
+                    className="max-w-full rounded-2xl border border-paper/30 bg-transparent px-6 py-5 text-3xl text-paper [color-scheme:dark] focus:border-paper"
+                  />
+                </label>
+              </div>
             )}
             {step === 4 && (
               <div className="flex max-w-2xl flex-wrap gap-2">

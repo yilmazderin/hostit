@@ -2,6 +2,7 @@ import type { MouseEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import type { Vendor } from '../../types'
 import { useApp } from '../../store/AppContext'
+import { canPlan } from '../../lib/access'
 
 // Planners save vendors to their dashboard. Signed out, the heart goes to sign-up and comes back here;
 // vendor and admin accounts have no favourites, so they don't get one.
@@ -17,7 +18,7 @@ export function FavouriteButton({
   const { user, isFavourite, toggleFavourite } = useApp()
   const nav = useNavigate()
   const { pathname, search } = useLocation()
-  if (user && user.role !== 'customer') return null
+  if (user && !canPlan(user)) return null
   const saved = !!user && isFavourite(vendor.id)
 
   const onClick = (e: MouseEvent) => {

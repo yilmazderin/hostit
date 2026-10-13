@@ -4,7 +4,8 @@ A clickable React proof of concept for [Host It](https://www.hostitevents.com/),
 
 - **Visitors** can browse the network, view vendor profiles and try the planning survey without an account.
 - **Planners** sign up to save vendors, build event boards, track every vendor's status and keep tasks and notes for each event.
-- **Vendors** apply to join the network. The Host It team reviews each application before the vendor becomes public.
+- **Vendors** apply to join the network from a simple vendor portal. The Host It team reviews each application, prepares the public profile and publishes it.
+- **One account covers both:** everyone can plan events, and anyone who applies also gets the vendor portal.
 
 All data is mock and lives in the browser's `localStorage`, so every visitor gets their own private copy of the demo.
 
@@ -12,9 +13,52 @@ All data is mock and lives in the browser's `localStorage`, so every visitor get
 
 ---
 
-## What's new in this version
+## What's new in v1.1 (October 11 edits)
 
-Compared with the initial version, which is preserved on the [`initial-draft`](https://github.com/yilmazderin/hostit/tree/initial-draft) branch.
+### Vendor portal, simplified
+- **Status first:** the vendor dashboard is now a minimal portal showing the business name, primary category and application status, with a short explanation.
+- **Six statuses:** application in progress · submitted / under review · additional information required · approved / profile being prepared · live / published · not approved.
+- **Actions follow the status:**
+  - complete or edit the application (before submitting, or when Host It asks for more information)
+  - preview the application as submitted
+  - view the live profile once published
+  - request changes to a live listing
+- **Read-only after submitting**, unless Host It requests more information. The registration flow and application form are unchanged.
+- **Removed for V1:** profile-view stats, inquiries and accept/decline, confirmed events, the availability calendar and blocked dates, and anything suggesting these unlock after approval.
+
+### Host It controls public profiles
+- **Review actions:** approve, request more information (with a note) or decline. Then edit the listing and publish it, or unpublish it later.
+- **Host It edits the listing:** an admin editor covers descriptions, services, categories, imagery and every other field. Vendors can't edit or publish a live listing; they send change requests, which Host It resolves with a reply.
+- **Two versions kept:** what the vendor submitted is kept separately from the listing Host It publishes.
+
+### One account, two experiences
+- **"What brings you to Host It?"** appears only on the general *create account* path. *Start planning* and *join the network* links go straight to the right form.
+- **Everyone can plan:** every account gets the planning dashboard, vendors included, whatever their application status.
+- **Switching:** the account menu switches between the *planning dashboard* and the *vendor portal*, or shows *apply to join the network* for accounts that haven't applied.
+- **Planners can apply with their existing account:** no new login, and their events are kept.
+- **Log in** returns you to the dashboard you used last.
+
+### Homepage and planning
+- **Shorter homepage:** the category images and "who it's for" are gone. *Browse the network* and *plan an event* lead, followed by how it works and the vendor invitation.
+- **No availability claims:**
+  - How it works step 2 is now *find your matches*.
+  - The survey no longer filters vendors by date or suggests availability is checked.
+  - The survey still collects the event date, and now time too, and saves both to the board.
+- **Inquiries are opt-in:** adding a vendor to an event leaves *send an inquiry* unchecked by default.
+- **Notes sidebar:** on the event board, the to-do list and sticky notes sit in a right sidebar on wide screens and stack below on phones.
+
+### Other edits
+- **FAQ:** the original Host It FAQ is on the About page, as an accordion.
+- **Dark mode:** the background now matches the charcoal header throughout.
+- **Password changes:** they now go through a reset link sent to your email, available from account settings or *forgot password?* on the login page.
+  - The link works once, expires after 30 minutes and is rate limited.
+  - The POC has no mail server, so the email appears in an on-screen demo inbox.
+
+---
+
+## What's new in v1 (since the initial version)
+
+Compared with the initial version, which is preserved on the [`initial-draft`](https://github.com/yilmazderin/hostit/tree/initial-draft) branch. Some of these were later revised in v1.1 above.
 
 ### Public site and navigation
 - **Public home page:** photo hero, large category imagery, how it works, who it's for, a section for vendors and a closing call to action. It's separate from the signed-in dashboard.
@@ -144,9 +188,9 @@ Password for every account is `hostit`. The login page has one-tap buttons for e
 | account | email | what you'll see |
 |---|---|---|
 | planner | `customer@hostit.com` | Maya: three event boards (two upcoming, one past), favourites, tasks and notes |
-| vendor | `vendor@hostit.com` | A Couple Cocktails, in the network, with pending inquiries |
-| vendor | `pantry@hostit.com` | The Pantry, a second approved vendor |
-| applicant | `apply@hostit.com` | Bloom & Barrel, a vendor application awaiting review |
+| vendor | `vendor@hostit.com` | A Couple Cocktails: vendor portal with a live listing (and planning, like every account) |
+| vendor | `pantry@hostit.com` | The Pantry, a second live vendor |
+| applicant | `apply@hostit.com` | Bloom & Barrel, a vendor application under review |
 | admin | `admin@hostit.com` | The Host It team's review queue |
 
 Use **reset demo data** in the footer to restore the seeded data.
@@ -167,14 +211,15 @@ Use **reset demo data** in the footer to restore the seeded data.
    - *+ add vendor* → *add my own vendor*.
    - Add a to-do and a sticky note.
 3. *Edit details* → change the guest count. *View results* becomes *update results*.
-4. Account menu → account settings.
+4. Account menu → account settings → *change password*: the reset link appears in the demo inbox.
+5. Account menu → *apply to join the network*: apply with the same account. The menu now offers the *vendor portal*.
 
 **Vendor application**
-1. *Join the network* → create a vendor account → complete the profile → *submit for review*.
-2. Sign in as `admin@hostit.com` → review the application → *approve & publish* (or decline with a note).
-3. Sign back in as the vendor: the decision is waiting on the dashboard, and an approved vendor is now listed in its category.
+1. *Join the network* → create a vendor account (or apply from a planner account) → complete the application → *submit for review*. The application becomes read-only.
+2. Sign in as `admin@hostit.com` → review it → *request info* (the vendor can edit and resubmit), *approve* or *decline*.
+3. Once it's approved: *edit listing* → *save & publish*. The vendor's portal shows *live*, and the profile appears in its category.
 
-**Approved vendor** (`vendor@hostit.com`): accept or decline inquiries (the planner's board updates), edit the profile and tags, and block dates in availability.
+**Live vendor** (`vendor@hostit.com`): see the status, *view live profile*, *preview application* and *request changes*. Host It resolves change requests in the admin *change requests* tab.
 
 ## Branches and releases
 
@@ -197,6 +242,6 @@ Vite, React 18, TypeScript, React Router 7, Tailwind 4.
   - `public/`: home, about, services, contact, legal
   - `account/`: sign-up, join, settings
   - `customer/`: dashboard, network, boards, planning
-  - `vendor/`: dashboard, profile, availability, application
-  - `admin/`: review queue
+  - `vendor/`: portal, application editor, application preview
+  - `admin/`: review queue, listing editor
 - **Mock data** is under `src/data/`.

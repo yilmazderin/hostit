@@ -74,11 +74,12 @@ export function StickyNotes({ notes, onChange }: { notes: StickyNote[]; onChange
   }
   return (
     <div>
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h3 className="text-lg">sticky notes</h3>
         <span className="text-xs text-stone">quick thoughts, links, ideas</span>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {/* lg puts the board's tools in a narrow sidebar, so the notes drop back to two across */}
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2">
         {notes.map((n) => (
           <div key={n.id} className={`group relative rounded-xl p-3 pr-7 ${CATEGORY_BG[n.color] ?? 'bg-honey'}`}>
             <textarea
