@@ -172,6 +172,7 @@ export interface EventBoard {
   tasks?: Task[]
   stickies?: StickyNote[]
   resultsBasis?: string // surveyKey of the event when its matched results were last viewed
+  vendorStatuses?: Partial<Record<string, ManualStatus>> // the planner's own status for a Host It vendor; wins over the inquiry
   cover: string // color token
   createdAt: string
 }

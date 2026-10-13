@@ -84,6 +84,14 @@ export function EventBoard() {
     setCustomEditing(null)
   }
   const removeCustom = (cid: string) => updateEvent(event.id, { customVendors: customVendors.filter((c) => c.id !== cid) })
+  const setNetworkStatus = (vid: string, status: ManualStatus) =>
+    updateEvent(event.id, { vendorStatuses: { ...event.vendorStatuses, [vid]: status } })
+  // sending an inquiry or removing the vendor hands the status back to the inquiry
+  const clearNetworkStatus = (vid: string) => {
+    if (!event.vendorStatuses?.[vid]) return
+    const { [vid]: _, ...rest } = event.vendorStatuses
+    updateEvent(event.id, { vendorStatuses: rest })
+  }
   const setCustomStatus = (cid: string, status: ManualStatus) =>
     updateEvent(event.id, { customVendors: customVendors.map((c) => (c.id === cid ? { ...c, status } : c)) })
   const firstOpenNeed = event.needs.find((s) => {
@@ -255,10 +263,18 @@ export function EventBoard() {
                           key={p.key}
                           item={p}
                           eventId={event.id}
-                          onContact={() => contactVendor(event.id, p.key)}
-                          onRemove={() => (p.kind === 'network' ? removeVendorFromEvent(event.id, p.key) : removeCustom(p.key))}
+                          onContact={() => {
+                            contactVendor(event.id, p.key)
+                            clearNetworkStatus(p.key)
+                          }}
+                          onRemove={() => {
+                            if (p.kind === 'network') {
+                              removeVendorFromEvent(event.id, p.key)
+                              clearNetworkStatus(p.key)
+                            } else removeCustom(p.key)
+                          }}
                           onEdit={() => p.kind === 'custom' && setCustomEditing(p.custom)}
-                          onStatus={(status) => setCustomStatus(p.key, status)}
+                          onStatus={(status) => (p.kind === 'network' ? setNetworkStatus(p.key, status) : setCustomStatus(p.key, status))}
                         />
                       ))}
                     </div>
