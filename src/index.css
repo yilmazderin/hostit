@@ -97,6 +97,11 @@
   background-position: right 1rem center;
 }
 @utility card { @apply rounded-2xl bg-surface shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(48,44,44,0.18)]; }
+/* scrolls, but never shows a scrollbar */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
 @utility masonry {
   column-gap: 1.25rem;
   & > * { break-inside: avoid; margin-bottom: 1.25rem; }
