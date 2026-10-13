@@ -3,10 +3,11 @@ import type { Category, EventBoard, ManualStatus, Vendor } from '../types'
 import { CATEGORY_BG, categoryBySlug } from '../data/categories'
 import { countdown } from '../lib/events'
 import { formatDate, formatTime, plural } from '../lib/format'
-import { STATUS_GROUPS, boardItems, isConsidering, needsProgress, type BoardItem } from '../lib/vendorStatus'
+import { boardItems, isConsidering, needsProgress, type BoardItem } from '../lib/vendorStatus'
 import { useApp } from '../store/AppContext'
+import { StatusMenu } from './board/StatusMenu'
 import { FavouriteButton } from './network/FavouriteButton'
-import { Chip, StatusBadge } from './ui'
+import { Chip } from './ui'
 
 // The photo leads; name and blurb sit beneath it, never on it. The page sets the grid span and image shape.
 export function CategoryCard({
@@ -176,17 +177,9 @@ export function BoardVendorCard({
           <button onClick={onEdit} className="block aspect-[4/3] w-full overflow-hidden" aria-label={`edit ${item.name}`}>{image}</button>
         )}
         {/* every booking on the board, host it vendor or their own, takes the planner's status */}
-        <label className="absolute left-3 top-3 cursor-pointer rounded-full bg-paper" title="change status">
-          <StatusBadge status={item.status} chevron />
-          <select
-            aria-label={`status for ${item.name}`}
-            value={item.group}
-            onChange={(e) => onStatus(e.target.value as ManualStatus)}
-            className="absolute inset-0 cursor-pointer opacity-0"
-          >
-            {STATUS_GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}
-          </select>
-        </label>
+        <span className="absolute left-3 top-3">
+          <StatusMenu status={item.status} value={item.group} name={item.name} onChange={onStatus} />
+        </span>
         <button
           onClick={onRemove}
           className="absolute right-3 top-3 rounded-full bg-paper/90 p-1.5 text-stone transition-colors hover:bg-paper hover:text-ink"

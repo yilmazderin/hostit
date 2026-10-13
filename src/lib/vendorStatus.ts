@@ -20,6 +20,14 @@ export const STATUS_GROUPS: { key: StatusGroup; label: string }[] = [
   { key: 'declined', label: 'declined / unavailable' },
 ]
 
+// the dot beside each status, in section headings and the status menu
+export const STATUS_DOT: Record<StatusGroup, string> = {
+  confirmed: 'bg-moss',
+  pending: 'bg-honey',
+  'not-contacted': 'border border-ink/30 bg-surface',
+  declined: 'bg-mist-deep',
+}
+
 // pinned and still in play, but not booked
 export const isConsidering = (s: BoardStatus) => s === 'pending' || s === 'not-contacted'
 
