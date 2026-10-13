@@ -65,14 +65,14 @@ export function NeedsTracker({
           + add the categories you need
         </button>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-[repeat(auto-fill,minmax(12rem,1fr))]">
           {rows.map((r) => {
             const name = categoryBySlug(r.slug).name
             const done = r.confirmed >= r.needed
             const active = activeCategory === r.slug
             if (editing)
               return (
-                <div key={r.slug} className="card flex items-center justify-between gap-2 p-4 text-sm">
+                <div key={r.slug} className="card flex items-center justify-between gap-2 px-3.5 py-2.5 text-sm">
                   <span className="min-w-0 truncate">{name}</span>
                   <div className="flex shrink-0 items-center gap-1">
                     <StepButton label={`need fewer ${name}`} disabled={r.needed <= 1} onClick={() => setCount(r.slug, r.needed - 1)}>−</StepButton>
@@ -85,23 +85,25 @@ export function NeedsTracker({
                 </div>
               )
             return (
-              <div key={r.slug} className={`card p-4 transition-shadow ${active ? 'ring-2 ring-ink' : ''}`}>
+              <div key={r.slug} className={`card px-3.5 py-3 transition-shadow ${active ? 'ring-2 ring-ink' : ''}`}>
                 <button className="block w-full text-left" onClick={() => onSelectCategory(active ? null : r.slug)} aria-pressed={active}>
-                  <span className="flex min-w-0 items-center gap-1.5 text-sm">
-                    {done && (
-                      <svg className="shrink-0" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true"><path d="M3 8.5l3 3 7-7" /></svg>
-                    )}
-                    <span className="truncate">{name}</span>
+                  <span className="flex items-baseline justify-between gap-2 text-sm">
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      {done && (
+                        <svg className="shrink-0" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true"><path d="M3 8.5l3 3 7-7" /></svg>
+                      )}
+                      <span className="truncate">{name}</span>
+                    </span>
+                    <span className="shrink-0 font-bold tabular-nums">{r.confirmed} / {r.needed}</span>
                   </span>
-                  <span className="mt-1 block text-2xl font-bold tabular-nums">{r.confirmed} / {r.needed}</span>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-mist">
+                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-mist">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-moss' : 'bg-ink'}`}
                       style={{ width: `${Math.min(r.confirmed / r.needed, 1) * 100}%` }}
                     />
                   </div>
                 </button>
-                <div className="mt-2 flex items-baseline justify-between gap-3 text-xs text-stone">
+                <div className="mt-1.5 flex items-baseline justify-between gap-3 text-[11px] text-stone">
                   <span>{done ? (r.confirmed > r.needed ? `filled · ${r.confirmed - r.needed} extra` : 'filled') : r.considering ? `${r.considering} considering` : 'still missing'}</span>
                   {!done && (
                     <Link to={`/plan/results?event=${event.id}&category=${r.slug}`} className="shrink-0 hover:text-ink hover:underline">find →</Link>
@@ -133,7 +135,7 @@ function StepButton({ label, disabled, onClick, children }: { label: string; dis
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="flex h-7 w-7 items-center justify-center rounded-full border border-mist-deep text-sm leading-none hover:border-ink disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-mist-deep"
+      className="flex h-6 w-6 items-center justify-center rounded-full border border-mist-deep text-sm leading-none hover:border-ink disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-mist-deep"
     >
       {children}
     </button>
