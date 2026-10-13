@@ -7,6 +7,7 @@ import { VendorCard } from '../../components/cards'
 import { FavouriteButton } from '../../components/network/FavouriteButton'
 import { categoryBySlug } from '../../data/categories'
 import { isListed, useApp } from '../../store/AppContext'
+import { canPlan } from '../../lib/access'
 
 export function VendorProfile() {
   const { slug } = useParams()
@@ -34,7 +35,7 @@ export function VendorProfile() {
       <FavouriteButton vendor={vendor} variant="outline" />
       <p className="w-full text-xs text-stone">free account · takes a minute</p>
     </>
-  ) : user.role === 'customer' ? (
+  ) : canPlan(user) ? (
     <>
       <button className="pill-dark flex-1" onClick={() => setOpen(true)}>add to event</button>
       <FavouriteButton vendor={vendor} variant="outline" />
@@ -69,7 +70,7 @@ export function VendorProfile() {
           </div>
         </section>
       )}
-      {user?.role === 'customer' && (
+      {canPlan(user) && (
         <AddToEventModal key={String(open)} vendor={vendor} open={open} onClose={() => setOpen(false)} defaultEventId={eventCtx} />
       )}
       <Footer />

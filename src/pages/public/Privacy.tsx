@@ -25,7 +25,7 @@ const SECTIONS: LegalSection[] = [
             </>,
             <>
               <span className={term}>vendor application details:</span> if you apply to join the network, your business name,
-              category and location, your profile (description, services, photos and links), your availability, and where
+              category and location, your profile (description, services, photos and links), and where
               your application stands.
             </>,
             <><span className={term}>inquiries:</span> messages between planners and vendors, and their status.</>,
@@ -82,7 +82,7 @@ const SECTIONS: LegalSection[] = [
           items={[
             'update your details any time in your account settings.',
             'edit or delete your event boards whenever you like.',
-            'vendors can update their profile and availability from their dashboard.',
+            'vendors can ask host it to update their listing with a change request from their vendor portal.',
             'to close your account, or to ask for a copy of your information or for it to be deleted, get in touch.',
           ]}
         />

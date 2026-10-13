@@ -76,7 +76,7 @@ const SECTIONS: LegalSection[] = [
         <p>as a vendor, you agree to:</p>
         <LegalList
           items={[
-            'keep your profile, services and availability accurate and up to date.',
+            'keep your application accurate, and tell host it through a change request when something about your business changes.',
             'only upload photos and content you have the rights to use.',
             'hold any licences, permits and insurance your services require.',
             'respond to inquiries in good faith, and honour the agreements you make with planners.',

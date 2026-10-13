@@ -7,19 +7,20 @@ export function eventSurvey(event: EventBoard, category?: CategorySlug): Survey 
     type: event.type,
     guests: event.guests,
     date: event.date,
+    time: event.time,
     vibes: event.vibes,
     needs: category ? [category] : event.needs.length ? event.needs : CATEGORIES.map((c) => c.slug),
   }
 }
 
 // Identity of everything that changes the matches, so the board can tell "view" from "update".
+// Date and time are saved to the event but never matched on: host it doesn't check vendor availability.
 export const surveyKey = (s: Survey) =>
-  JSON.stringify([s.type, s.guests, s.date, [...s.vibes].sort(), [...s.needs].sort()])
+  JSON.stringify([s.type, s.guests, [...s.vibes].sort(), [...s.needs].sort()])
 
 export function matchVendors(survey: Survey, vendors: Vendor[]): MatchResult[] {
   return vendors
     .filter((v) => survey.needs.includes(v.categorySlug))
-    .filter((v) => !survey.date || !v.unavailableDates.includes(survey.date))
     .map((vendor) => {
       let score = 0
       const reasons: string[] = []

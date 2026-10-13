@@ -1,14 +1,13 @@
 import type { CategorySlug, CustomVendor, EventBoard, Inquiry, Vendor } from '../types'
 
-// Where a pinned vendor stands for one event. Unavailable = the vendor blocked the event date
-// before confirming; it shares the declined group because either way they're not an option.
+// Where a pinned vendor stands for one event. 'unavailable' shares the declined group; nothing derives it
+// any more (host it doesn't track vendor availability), but the type stays for the badge and older data.
 export type BoardStatus = 'confirmed' | 'pending' | 'not-contacted' | 'declined' | 'unavailable'
 export type StatusGroup = 'confirmed' | 'pending' | 'not-contacted' | 'declined'
 
-export function boardStatus(event: EventBoard, vendor: Vendor, inquiry?: Inquiry): BoardStatus {
+export function boardStatus(inquiry?: Inquiry): BoardStatus {
   if (inquiry?.status === 'accepted') return 'confirmed'
   if (inquiry?.status === 'declined') return 'declined'
-  if (event.date && vendor.unavailableDates.includes(event.date)) return 'unavailable'
   return inquiry ? 'pending' : 'not-contacted'
 }
 
@@ -42,7 +41,7 @@ export function boardItems(
     .map((id) => vendors.find((v) => v.id === id))
     .filter((v): v is Vendor => !!v)
     .map<BoardItem>((vendor) => {
-      const status = boardStatus(event, vendor, inquiryFor(event.id, vendor.id))
+      const status = boardStatus(inquiryFor(event.id, vendor.id))
       return { kind: 'network', key: vendor.id, name: vendor.name, categorySlug: vendor.categorySlug, status, group: groupOf(status), vendor }
     })
   const custom = (event.customVendors ?? []).map<BoardItem>((c) => ({

@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { useEffect } from 'react'
-import { RequireRole } from './components/RequireRole'
+import { RequireRole, RequireVendor } from './components/RequireRole'
+import { useApp } from './store/AppContext'
 import { Landing } from './pages/Landing'
 import { Login } from './pages/Login'
 import { About } from './pages/public/About'
@@ -11,6 +12,7 @@ import { Privacy } from './pages/public/Privacy'
 import { SignUp } from './pages/account/SignUp'
 import { JoinNetwork } from './pages/account/JoinNetwork'
 import { Account } from './pages/account/Account'
+import { ResetPassword } from './pages/account/ResetPassword'
 import { CustomerDashboard } from './pages/customer/Dashboard'
 import { Explore } from './pages/customer/Explore'
 import { Category } from './pages/customer/Category'
@@ -21,8 +23,9 @@ import { Events } from './pages/customer/Events'
 import { EventBoard } from './pages/customer/EventBoard'
 import { Dashboard } from './pages/vendor/Dashboard'
 import { EditProfile } from './pages/vendor/EditProfile'
-import { Availability } from './pages/vendor/Availability'
+import { ApplicationPreview } from './pages/vendor/ApplicationPreview'
 import { Applications } from './pages/admin/Applications'
+import { ListingEditor } from './pages/admin/ListingEditor'
 
 // new page: start at the top, or at the #section the link points to (e.g. /terms#vendors)
 function ScrollToTop() {
@@ -32,6 +35,18 @@ function ScrollToTop() {
     if (target) target.scrollIntoView()
     else window.scrollTo(0, 0)
   }, [pathname, hash])
+  return null
+}
+
+// log in returns people to the dashboard they last used
+function DashboardMemory() {
+  const { pathname } = useLocation()
+  const { user, setLastDashboard } = useApp()
+  useEffect(() => {
+    if (!user || user.role === 'admin') return
+    if (pathname === '/dashboard') setLastDashboard('planning')
+    else if (pathname.startsWith('/vendor') && user.vendorId) setLastDashboard('vendor')
+  }, [pathname, user?.id])
   return null
 }
 
@@ -46,6 +61,7 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
+      <DashboardMemory />
       <Routes>
         {/* public: anyone can learn about host it and browse the network */}
         <Route path="/" element={<Landing />} />
@@ -63,29 +79,31 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/join" element={<JoinNetwork />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route path="/explore" element={<Navigate to="/network" replace />} />
         <Route path="/explore/:categorySlug" element={<LegacyCategory />} />
         <Route path="/home" element={<Navigate to="/dashboard" replace />} />
 
-        <Route element={<RequireRole role="customer" />}>
+        {/* one account, two experiences: every account plans; the vendor portal comes with an application */}
+        <Route element={<RequireRole />}>
           <Route path="/dashboard" element={<CustomerDashboard />} />
           <Route path="/events" element={<Events />} />
           <Route path="/events/:id" element={<EventBoard />} />
-        </Route>
-
-        <Route element={<RequireRole />}>
           <Route path="/account" element={<Account />} />
         </Route>
 
-        <Route element={<RequireRole role="vendor" />}>
+        <Route element={<RequireVendor />}>
           <Route path="/vendor" element={<Dashboard />} />
-          <Route path="/vendor/profile" element={<EditProfile />} />
-          <Route path="/vendor/availability" element={<Availability />} />
+          <Route path="/vendor/application" element={<EditProfile />} />
+          <Route path="/vendor/preview" element={<ApplicationPreview />} />
+          <Route path="/vendor/profile" element={<Navigate to="/vendor/application" replace />} />
+          <Route path="/vendor/availability" element={<Navigate to="/vendor" replace />} />
         </Route>
 
         <Route element={<RequireRole role="admin" />}>
           <Route path="/admin" element={<Applications />} />
+          <Route path="/admin/listings/:vendorId" element={<ListingEditor />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

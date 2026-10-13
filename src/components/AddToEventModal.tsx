@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { EventType, Vendor } from '../types'
 import { EVENT_TYPES } from '../data/tags'
@@ -22,7 +22,11 @@ export function AddToEventModal({
   const [mode, setMode] = useState<'existing' | 'new'>(myEvents.length ? 'existing' : 'new')
   const [eventId, setEventId] = useState(defaultEventId ?? myEvents[0]?.id ?? '')
   const [message, setMessage] = useState('')
-  const [contact, setContact] = useState(true)
+  const [contact, setContact] = useState(false)
+  // every new add starts as a plain save; an inquiry only goes out if the planner ticks the box this time
+  useEffect(() => {
+    if (open) setContact(false)
+  }, [open])
   const [draft, setDraft] = useState({ name: '', type: 'private gathering' as EventType, guests: 30, date: '' })
 
   const finish = (id: string) => {
@@ -128,7 +132,7 @@ export function ContactToggle({ contact, onChange, who }: { contact: boolean; on
         send {who} an inquiry now
         <span className="mt-0.5 block text-xs text-stone">
           {contact
-            ? 'they get your event details and can confirm or decline.'
+            ? 'sends them your event details.'
             : "saved as not contacted. send the inquiry from the board when you're ready."}
         </span>
       </span>

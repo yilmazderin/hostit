@@ -8,14 +8,14 @@ import { PLANNER_TYPES } from '../../data/tags'
 import { isEmail } from '../../lib/validate'
 import { useApp } from '../../store/AppContext'
 
-// Planner sign-up. Vendors apply through /join instead, so the chooser comes first unless we already know.
+// Planner sign-up. Only the general "create account" (plain /signup) asks where to begin; vendors begin at /join.
 export function SignUp() {
   const { user, signUp } = useApp()
   const nav = useNavigate()
   const [params] = useSearchParams()
   const next = params.get('next')
-  // arriving from "save" or "plan with ..." means they're planning: skip the chooser
-  const [path, setPath] = useState<'choose' | 'planner'>(next || params.get('as') === 'planner' ? 'planner' : 'choose')
+  // arriving from "start planning", "save" or "plan with ..." means they're planning: skip the chooser
+  const choosing = !next && params.get('as') !== 'planner'
   const [step, setStep] = useState<1 | 2>(1)
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [plannerType, setPlannerType] = useState<PlannerType | null>(null)
@@ -32,26 +32,29 @@ export function SignUp() {
       </FormShell>
     )
 
-  if (path === 'choose')
+  if (choosing)
     return (
       <FormShell wide>
-        <h1 className="text-5xl md:text-6xl">create an account.</h1>
-        <p className="mt-3 text-sm text-stone">two ways in. pick the one that fits.</p>
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
-          <button onClick={() => setPath('planner')} className="card group flex flex-col p-8 text-left transition-shadow hover:shadow-[0_16px_40px_-16px_rgba(48,44,44,0.35)]">
-            <span className="label-caps text-stone">user account</span>
-            <span className="mt-3 text-3xl font-bold tracking-tight">plan events</span>
-            <span className="mt-3 text-sm text-stone">for planning your own events, events for a business, or events you plan professionally. save vendors, build event boards, send inquiries.</span>
-            <span className="pill-dark mt-8 self-start">create a user account</span>
-          </button>
-          <Link to="/join" className="card group flex flex-col p-8 transition-shadow hover:shadow-[0_16px_40px_-16px_rgba(48,44,44,0.35)]">
-            <span className="label-caps text-stone">vendor account</span>
-            <span className="mt-3 text-3xl font-bold tracking-tight">join the network</span>
-            <span className="mt-3 text-sm text-stone">for businesses offering event services. apply with your business profile; the host it team reviews every application before it goes live.</span>
-            <span className="pill-ghost mt-8 self-start">apply to join</span>
-          </Link>
+        <div className="max-w-4xl">
+          <h1 className="text-5xl md:text-6xl">what brings you to host it?</h1>
+          <p className="mt-3 text-sm text-stone">choose where you'd like to begin.</p>
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <Link to="/signup?as=planner" className="card group flex flex-col p-6 transition-shadow hover:shadow-[0_16px_40px_-16px_rgba(48,44,44,0.35)] md:p-8">
+              <span className="label-caps text-stone">planning dashboard</span>
+              <span className="mt-3 text-3xl font-bold tracking-tight">i'm planning an event</span>
+              <span className="mt-3 text-sm text-stone">discover vendors and organize your events.</span>
+              <span className="pill-dark mt-8 self-start">start planning</span>
+            </Link>
+            <Link to="/join" className="card group flex flex-col p-6 transition-shadow hover:shadow-[0_16px_40px_-16px_rgba(48,44,44,0.35)] md:p-8">
+              <span className="label-caps text-stone">vendor portal</span>
+              <span className="mt-3 text-3xl font-bold tracking-tight">i'm a vendor</span>
+              <span className="mt-3 text-sm text-stone">apply to join the host it network.</span>
+              <span className="pill-ghost mt-8 self-start">apply to join</span>
+            </Link>
+          </div>
+          <p className="mt-5 text-sm text-stone">one account. access to both experiences.</p>
+          <p className="mt-8 text-sm text-stone">already have an account? <Link to={loginLink} className="text-ink underline">log in</Link></p>
         </div>
-        <p className="mt-8 text-sm text-stone">already have an account? <Link to={loginLink} className="text-ink underline">log in</Link></p>
       </FormShell>
     )
 
