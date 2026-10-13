@@ -88,7 +88,7 @@ export function StickyNotes({ notes, onChange }: { notes: StickyNote[]; onChange
               onChange={(e) => onChange(notes.map((x) => (x.id === n.id ? { ...x, text: e.target.value } : x)))}
               placeholder="write something..."
               aria-label="sticky note"
-              className="block h-32 w-full resize-none bg-transparent text-sm leading-snug text-ink placeholder:text-ink/40"
+              className="scrollbar-none block h-32 w-full resize-none overflow-hidden overscroll-contain bg-transparent text-sm leading-snug text-ink placeholder:text-ink/40 hover:overflow-y-auto focus:overflow-y-auto"
             />
             <DeleteButton label="delete note" className="absolute right-1 top-1" onClick={() => onChange(notes.filter((x) => x.id !== n.id))} />
           </div>

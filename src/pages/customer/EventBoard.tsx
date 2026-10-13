@@ -272,7 +272,7 @@ export function EventBoard() {
         {/* capped to the viewport and scrolling on its own: a long to-do list would otherwise stick with its end out of reach */}
         <aside
           aria-labelledby="planning-tools"
-          className="rounded-3xl border border-mist bg-mist/40 p-5 md:p-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain lg:p-5 lg:[scrollbar-width:thin]"
+          className="rounded-3xl border border-mist bg-mist/40 p-5 md:p-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-hidden lg:overscroll-contain lg:p-5 lg:scrollbar-none lg:hover:overflow-y-auto lg:focus-within:overflow-y-auto"
         >
           <h2 id="planning-tools" className="text-2xl">planning tools</h2>
           <p className="mt-1 text-sm text-stone">tasks and notes for this event. only you can see them.</p>
