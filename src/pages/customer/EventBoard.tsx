@@ -12,17 +12,11 @@ import { CATEGORIES, CATEGORY_BG, categoryBySlug } from '../../data/categories'
 import { EVENT_TYPES, VIBE_TAGS } from '../../data/tags'
 import { formatDate, formatTime, plural } from '../../lib/format'
 import { eventSurvey, surveyKey } from '../../lib/matchVendors'
-import { STATUS_GROUPS, boardItems, isConsidering, type StatusGroup } from '../../lib/vendorStatus'
+import { STATUS_DOT, STATUS_GROUPS, boardItems, isConsidering, type StatusGroup } from '../../lib/vendorStatus'
 import { useApp } from '../../store/AppContext'
 
 type Draft = Pick<EventBoardData, 'name' | 'type' | 'guests' | 'date' | 'vibes'> & { time: string; location: string }
 
-const STATUS_DOT: Record<StatusGroup, string> = {
-  confirmed: 'bg-moss',
-  pending: 'bg-honey',
-  'not-contacted': 'border border-ink/30 bg-surface',
-  declined: 'bg-mist-deep',
-}
 const statusRank = (g: StatusGroup) => STATUS_GROUPS.findIndex((s) => s.key === g)
 
 // The workspace for one event, top to bottom: what it is, what it still needs, who's on it, what's left to do.
