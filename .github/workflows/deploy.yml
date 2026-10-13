@@ -31,6 +31,32 @@ jobs:
         run: npm run build
       - name: SPA fallback for client-side routes
         run: cp dist/index.html dist/404.html
+
+      # Previews: work that isn't on the main site yet, built from its own branch and published beside it
+      # under its own path. Each gets its own demo data (VITE_STORAGE_KEY) and hash urls (VITE_HASH_ROUTER),
+      # since pages only falls back to the main site's 404. A preview whose branch is gone is skipped.
+      # Run this workflow on main again to pick up new commits on a preview branch.
+      - name: Find the chat preview
+        id: chat
+        run: |
+          if git ls-remote --exit-code --heads origin chat >/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Checkout the chat preview
+        if: steps.chat.outputs.exists == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: chat
+          path: previews/chat
+      - name: Build the chat preview
+        if: steps.chat.outputs.exists == 'true'
+        working-directory: previews/chat
+        env:
+          VITE_STORAGE_KEY: hostit-chat-preview
+          VITE_HASH_ROUTER: "1"
+        run: |
+          npm ci
+          npm run build -- --base /hostit/chat-preview/ --outDir "$GITHUB_WORKSPACE/dist/chat-preview" --emptyOutDir
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
